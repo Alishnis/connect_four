@@ -1,19 +1,22 @@
 "use client";
 import { motion } from "framer-motion";
 import type { TimeControlMode } from "@/lib/game/constants";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface Props {
   value: TimeControlMode;
   onChange: (mode: TimeControlMode) => void;
 }
 
-const modes: { value: TimeControlMode; label: string; icon: string; color: string }[] = [
-  { value: "classic", label: "КЛАССИКА", icon: "♾️", color: "#00FFFF" },
-  { value: "blitz",   label: "БЛИЦ",    icon: "⚡", color: "#FF9900" },
-  { value: "sprint",  label: "СПРИНТ",  icon: "🏃", color: "#FF00FF" },
-];
-
 export default function TimeControlPicker({ value, onChange }: Props) {
+  const { t } = useLanguage();
+
+  const modes: { value: TimeControlMode; labelKey: string; icon: string; color: string }[] = [
+    { value: "classic", labelKey: "time.classic", icon: "♾️", color: "#00FFFF" },
+    { value: "blitz",   labelKey: "time.blitz",   icon: "⚡", color: "#FF9900" },
+    { value: "sprint",  labelKey: "time.sprint",  icon: "🏃", color: "#FF00FF" },
+  ];
+
   return (
     <div className="flex gap-1">
       {modes.map(mode => (
@@ -31,7 +34,7 @@ export default function TimeControlPicker({ value, onChange }: Props) {
             transition: "all 0.15s linear",
           }}
         >
-          {mode.icon} {mode.label}
+          {mode.icon} {t(mode.labelKey)}
         </motion.button>
       ))}
     </div>

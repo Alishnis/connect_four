@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import type { Player, TimeControl } from "@/lib/game/constants";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface Props {
   timeLeft: [number, number];
@@ -25,6 +26,7 @@ function formatSprint(ms: number): string {
 }
 
 export default function TimerDisplay({ timeLeft, moveTimeLeft, currentPlayer, timeControl, status }: Props) {
+  const { t } = useLanguage();
   if (timeControl.mode === "classic") return null;
 
   if (timeControl.mode === "blitz") {
@@ -36,7 +38,7 @@ export default function TimerDisplay({ timeLeft, moveTimeLeft, currentPlayer, ti
           color="#FF2D78"
         />
         <div className="font-mono text-xs text-[#E0E0E0]/40 uppercase tracking-widest">
-          БЛИЦ ⚡
+          {t("time.blitzLabel")}
         </div>
         <BlitzClock
           ms={timeLeft[1]}
@@ -56,7 +58,7 @@ export default function TimerDisplay({ timeLeft, moveTimeLeft, currentPlayer, ti
     return (
       <div className="flex flex-col items-center mt-2">
         <div className="font-mono text-xs text-[#E0E0E0]/40 uppercase tracking-widest mb-1">
-          СПРИНТ 🏃
+          {t("time.sprintLabel")}
         </div>
         <motion.div
           className="font-bold text-3xl"

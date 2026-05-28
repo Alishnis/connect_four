@@ -1,6 +1,7 @@
 "use client";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import type { MoveAnalysis } from "@/lib/game/coach";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface Props {
   moves: MoveAnalysis[];
@@ -8,6 +9,8 @@ interface Props {
 }
 
 export default function ScoreChart({ moves, onSelectMove }: Props) {
+  const { t } = useLanguage();
+
   const data = moves.map(m => ({
     move: m.moveNumber,
     eval: Math.max(-200, Math.min(200, m.evalScore)),
@@ -26,7 +29,7 @@ export default function ScoreChart({ moves, onSelectMove }: Props) {
             contentStyle={{ background: "#1a103c", border: "1px solid #00FFFF", fontFamily: "Share Tech Mono", fontSize: 11 }}
             labelStyle={{ color: "#00FFFF" }}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            formatter={(val: any) => [typeof val === "number" ? (val > 0 ? `+${val} (вы впереди)` : val < 0 ? `${val} (AI впереди)` : "Равно") : val, "Оценка"]}
+            formatter={(val: any) => [typeof val === "number" ? (val > 0 ? `+${val} (${t("chart.youAhead")})` : val < 0 ? `${val} (${t("chart.aiAhead")})` : t("chart.equal")) : val, t("chart.eval")]}
           />
           <Line type="monotone" dataKey="eval" stroke="#FF00FF" strokeWidth={2} dot={false}
             activeDot={{ r: 4, fill: "#FF9900", stroke: "#FF9900" }} />

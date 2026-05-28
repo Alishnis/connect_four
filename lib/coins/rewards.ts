@@ -13,16 +13,17 @@ export function calculateReward(params: {
   const { won, isMultiplayer, winStreak } = params;
 
   // Base reward for completing any game
+  // Reason keys are translation keys resolved at render time
   let base = 5;
-  let reason = "Завершение игры";
+  let reason = "@@reward.gameComplete@@@@";
 
   if (won) {
     if (isMultiplayer) {
       base = 25;
-      reason = "Победа в мультиплеере";
+      reason = "@@reward.mpWin@@@@";
     } else {
       base = 10;
-      reason = "Победа против ИИ";
+      reason = "@@reward.aiWin@@@@";
     }
   }
 

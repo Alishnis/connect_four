@@ -12,11 +12,13 @@ import SkewButton from "@/components/vaporwave/SkewButton";
 import { DEFAULT_TIME_CONTROL, BLITZ_TIME_CONTROL, SPRINT_TIME_CONTROL } from "@/lib/game/constants";
 import type { TimeControlMode, TimeControl } from "@/lib/game/constants";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function LocalGamePage() {
   const { state, lastMove, makeMove, reset, timeoutLoss } = useGame();
   const [timeControlMode, setTimeControlMode] = useState<TimeControlMode>("classic");
   const router = useRouter();
+  const { t } = useLanguage();
 
   const timeControlMap: Record<TimeControlMode, TimeControl> = {
     classic: DEFAULT_TIME_CONTROL,
@@ -43,7 +45,7 @@ export default function LocalGamePage() {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen py-8 px-4">
         <div className="w-full max-w-2xl">
           <h1 className="font-heading font-black text-2xl text-center mb-4" style={{ color: "#FF00FF", fontFamily: "Orbitron, sans-serif" }}>
-            ЛОКАЛЬНО 2П
+            {t("game.local2p")}
           </h1>
           <div className="mb-4">
             <TimeControlPicker value={timeControlMode} onChange={(m) => { setTimeControlMode(m); handleReset(); }} />
@@ -51,7 +53,7 @@ export default function LocalGamePage() {
           <GlowCard accentColor="cyan" className="!p-4">
             <ScoreBar
               currentPlayer={state.currentPlayer}
-              playerNames={["ИГРОК 1", "ИГРОК 2"]}
+              playerNames={[t("game.p1"), t("game.p2")]}
               moveCount={state.moveCount}
               status={state.status}
               timeControl={timeControl}
@@ -67,7 +69,7 @@ export default function LocalGamePage() {
               lastMove={lastMove}
             />
             <div className="flex gap-3 mt-4 justify-center">
-              <SkewButton variant="outline" onClick={handleReset} className="!px-4 !py-2 !text-xs">Новая игра</SkewButton>
+              <SkewButton variant="outline" onClick={handleReset} className="!px-4 !py-2 !text-xs">{t("game.newGame")}</SkewButton>
             </div>
           </GlowCard>
         </div>

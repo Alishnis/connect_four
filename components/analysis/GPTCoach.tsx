@@ -5,12 +5,14 @@ import SkewButton from "@/components/vaporwave/SkewButton";
 import CoachPanel from "@/components/analysis/CoachPanel";
 import ScoreChart from "@/components/analysis/ScoreChart";
 import { analyzeGame, type CoachReport } from "@/lib/game/coach";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function GPTCoach() {
   const [moveSequence, setMoveSequence] = useState<number[] | null>(null);
   const [winnerId, setWinnerId] = useState<1 | 2 | null>(null);
   const [playerNames, setPlayerNames] = useState<[string, string]>(["Player 1", "Player 2"]);
   const [report, setReport] = useState<CoachReport | null>(null);
+  const { t, locale } = useLanguage();
 
   // GPT deep analysis
   const [gptAnalysis, setGptAnalysis] = useState<string>("");
@@ -48,13 +50,13 @@ export default function GPTCoach() {
       const res = await fetch("/api/coach-gpt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ moveSequence, winnerId, playerNames }),
+        body: JSON.stringify({ moveSequence, winnerId, playerNames, locale }),
       });
       const data = await res.json();
-      setGptAnalysis(data.analysis ?? "Анализ недоступен.");
+      setGptAnalysis(data.analysis ?? t("gpt.unavailable"));
       setGptDone(true);
     } catch {
-      setGptAnalysis("Не удалось получить GPT анализ.");
+      setGptAnalysis(t("gpt.analysisFailed"));
       setGptDone(true);
     } finally {
       setGptLoading(false);
@@ -65,7 +67,7 @@ export default function GPTCoach() {
     return (
       <GlowCard accentColor="cyan" className="mb-6">
         <p className="font-mono text-xs text-[#E0E0E0]/50">
-          Нет данных о партии. Завершите игру, чтобы увидеть анализ.
+          {t("gpt.noData")}
         </p>
       </GlowCard>
     );
@@ -77,10 +79,10 @@ export default function GPTCoach() {
       <GlowCard accentColor="cyan" className="!py-3">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="font-mono text-xs text-[#E0E0E0]/50 uppercase tracking-widest">
-            {moveSequence.length} ходов &middot;{" "}
+            {t("gpt.movesPlayed", { n: moveSequence.length })} &middot;{" "}
             {winnerId
-              ? `${winnerId === 1 ? playerNames[0] : playerNames[1]} победил`
-              : "Ничья"}
+              ? t("gpt.won", { name: winnerId === 1 ? playerNames[0] : playerNames[1] })
+              : t("gpt.drawResult")}
           </div>
           {!gptDone && (
             <SkewButton
@@ -89,7 +91,7 @@ export default function GPTCoach() {
               disabled={gptLoading}
               className="!px-4 !py-2 !text-xs"
             >
-              {gptLoading ? "GPT думает..." : "🤖 GPT углублённый анализ"}
+              {gptLoading ? t("gpt.thinking") : `🤖 ${t("gpt.title")}`}
             </SkewButton>
           )}
         </div>
@@ -98,12 +100,12 @@ export default function GPTCoach() {
       {/* Score chart */}
       <GlowCard accentColor="cyan">
         <div className="font-mono text-xs uppercase tracking-widest text-[#00FFFF] mb-3">
-          Оценка позиции по ходам
+          {t("analysis.evalByMoves")}
         </div>
         <ScoreChart moves={report.moves} />
         <div className="flex justify-between font-mono text-xs text-[#E0E0E0]/40 mt-1">
-          <span>Преимущество Игрок 1 ▲</span>
-          <span>▼ Преимущество Игрок 2</span>
+          <span>{t("analysis.p1adv")} ▲</span>
+          <span>▼ {t("analysis.p2adv")}</span>
         </div>
       </GlowCard>
 
@@ -114,14 +116,14 @@ export default function GPTCoach() {
       {gptLoading && (
         <GlowCard accentColor="cyan">
           <div className="font-mono text-xs text-[#10B981] animate-pulse">
-            🤖 GPT-4o анализирует партию на русском...
+            {t("gpt.analyzing")}
           </div>
         </GlowCard>
       )}
       {gptAnalysis && (
         <GlowCard accentColor="cyan">
           <div className="font-mono text-xs uppercase tracking-widest mb-3" style={{ color: "#10B981" }}>
-            🤖 GPT-4o Углублённый разбор
+            {t("gpt.deepAnalysis")}
           </div>
           <div className="font-mono text-sm leading-relaxed whitespace-pre-wrap text-[#E0E0E0]">
             {gptAnalysis}

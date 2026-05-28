@@ -1,11 +1,6 @@
-import { notFound } from "next/navigation";
-import PerspectiveGrid from "@/components/vaporwave/PerspectiveGrid";
-import GlowCard from "@/components/vaporwave/GlowCard";
-import CoachPanel from "@/components/analysis/CoachPanel";
-import ScoreChart from "@/components/analysis/ScoreChart";
-import GPTCoach from "@/components/analysis/GPTCoach";
 import { analyzeGame } from "@/lib/game/coach";
-import Link from "next/link";
+import GPTGameContent from "./GPTGameContent";
+import AnalysisContent from "./AnalysisContent";
 
 interface Props {
   params: Promise<{ matchId: string }>;
@@ -19,27 +14,7 @@ export default async function AnalysisPage({ params }: Props) {
 
   // GPT game analysis — client-side via sessionStorage
   if (matchId === "gpt-game") {
-    return (
-      <div className="min-h-screen relative pt-24 pb-16">
-        <PerspectiveGrid />
-        <div className="relative z-10 max-w-3xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
-            <div>
-              <h1 className="font-heading font-black text-4xl" style={{ color: "#10B981", fontFamily: "Orbitron, sans-serif" }}>
-                GPT COACH
-              </h1>
-              <p className="font-mono text-xs text-[#E0E0E0]/50 uppercase tracking-widest">
-                AI разбор партии
-              </p>
-            </div>
-            <Link href="/play/ai" className="font-mono text-sm text-[#00FFFF] hover:underline uppercase tracking-wider">
-              &larr; Новая игра
-            </Link>
-          </div>
-          <GPTCoach />
-        </div>
-      </div>
-    );
+    return <GPTGameContent />;
   }
 
   let moveSequence: number[] = DEMO_SEQUENCE;
@@ -62,44 +37,5 @@ export default async function AnalysisPage({ params }: Props) {
 
   const report = analyzeGame(moveSequence);
 
-  return (
-    <div className="min-h-screen relative pt-24 pb-16">
-      <PerspectiveGrid />
-      <div className="relative z-10 max-w-3xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
-          <div>
-            <h1 className="font-heading font-black text-4xl text-glow-magenta" style={{ color: "#FF00FF", fontFamily: "Orbitron, sans-serif" }}>
-              AI COACH
-            </h1>
-            <p className="font-mono text-xs text-[#E0E0E0]/50 uppercase tracking-widest">
-              {isDemo ? "Демо анализ" : `Партия ${matchId.slice(0, 8)}...`}
-            </p>
-          </div>
-          <Link href="/play" className="font-mono text-sm text-[#00FFFF] hover:underline uppercase tracking-wider">
-            &larr; Новая игра
-          </Link>
-        </div>
-
-        {isDemo && (
-          <GlowCard accentColor="cyan" className="mb-6">
-            <p className="font-mono text-xs text-[#FF9900]">
-              ⚡ Демо режим
-            </p>
-          </GlowCard>
-        )}
-
-        {/* Score chart */}
-        <GlowCard accentColor="cyan" className="mb-6">
-          <div className="font-mono text-xs uppercase tracking-widest text-[#00FFFF] mb-3">Оценка позиции</div>
-          <ScoreChart moves={report.moves} />
-          <div className="flex justify-between font-mono text-xs text-[#E0E0E0]/40 mt-1">
-            <span>Преимущество Игрока 1 ▲</span>
-            <span>▼ Преимущество Игрока 2</span>
-          </div>
-        </GlowCard>
-
-        <CoachPanel report={report} />
-      </div>
-    </div>
-  );
+  return <AnalysisContent report={report} isDemo={isDemo} matchId={matchId} />;
 }

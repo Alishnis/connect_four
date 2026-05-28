@@ -3,6 +3,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Player } from "@/lib/game/constants";
 import SkewButton from "@/components/vaporwave/SkewButton";
 import type { CoinReward } from "@/lib/coins/rewards";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
+/** Parse @@key@@vars@@ format */
+function resolveI18n(text: string, t: (key: string, vars?: Record<string, string | number>) => string): string {
+  const match = text.match(/^@@(.+?)@@(.*?)@@$/);
+  if (match) {
+    const key = match[1];
+    const varsJson = match[2];
+    const vars = varsJson ? JSON.parse(varsJson) : undefined;
+    return t(key, vars);
+  }
+  return text;
+}
 
 interface Props {
   winner: Player | null;
@@ -13,9 +26,11 @@ interface Props {
   playerNames?: [string, string];
   coinReward?: CoinReward | null;
   timeoutLoser?: Player | null;
+  eloChange?: number;
 }
 
-export default function GameOverModal({ winner, isDraw, onRematch, onHome, onAnalysis, playerNames = ["PLAYER 1", "PLAYER 2"], coinReward, timeoutLoser }: Props) {
+export default function GameOverModal({ winner, isDraw, onRematch, onHome, onAnalysis, playerNames = ["PLAYER 1", "PLAYER 2"], coinReward, timeoutLoser, eloChange }: Props) {
+  const { t } = useLanguage();
   const title = isDraw ? "DRAW!" : `${winner === 1 ? playerNames[0] : playerNames[1]} WINS!`;
   const color = isDraw ? "#FF9900" : winner === 1 ? "#FF00FF" : "#00FFFF";
 
@@ -45,10 +60,10 @@ export default function GameOverModal({ winner, isDraw, onRematch, onHome, onAna
           </div>
           <div className="font-mono text-sm text-[#E0E0E0]/60 mb-4 uppercase tracking-widest">
             {timeoutLoser
-              ? "⏰ ВРЕМЯ ВЫШЛО!"
+              ? t("gameover.timeout")
               : isDraw
-                ? "Ничья. Сетка не покорилась никому."
-                : "Сетка склоняется перед победителем."}
+                ? t("gameover.draw")
+                : t("gameover.win")}
           </div>
 
           {/* Coin reward display */}
@@ -72,21 +87,51 @@ export default function GameOverModal({ winner, isDraw, onRematch, onHome, onAna
                 +{coinReward.total} NC
               </motion.div>
               <div className="font-mono text-xs text-[#E0E0E0]/50 mt-1">
-                {coinReward.reason}
+                {resolveI18n(coinReward.reason, t)}
                 {coinReward.streakBonus > 0 && (
                   <span style={{ color: "#FF9900" }}>
-                    {" "}(серия +{coinReward.streakBonus})
+                    {" "}({t("gameover.streak")} +{coinReward.streakBonus})
                   </span>
                 )}
               </div>
             </motion.div>
           )}
 
+          {/* ELO change display */}
+          {eloChange !== undefined && (
+            <motion.div
+              className="mb-6 py-3 px-4"
+              style={{
+                background: eloChange >= 0 ? "rgba(0, 255, 128, 0.1)" : "rgba(255, 45, 120, 0.1)",
+                border: `1px solid ${eloChange >= 0 ? "#00FF8044" : "#FF2D7844"}`,
+              }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.7, type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <motion.div
+                className="font-heading font-bold text-2xl"
+                style={{
+                  color: eloChange >= 0 ? "#00FF80" : "#FF2D78",
+                  fontFamily: "Orbitron, sans-serif",
+                  textShadow: `0 0 20px ${eloChange >= 0 ? "#00FF8066" : "#FF2D7866"}`,
+                }}
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ repeat: 2, duration: 0.4, delay: 1 }}
+              >
+                {eloChange >= 0 ? "+" : ""}{eloChange} ELO
+              </motion.div>
+              <div className="font-mono text-xs text-[#E0E0E0]/50 mt-1">
+                {eloChange >= 0 ? t("ranked.eloUp") : t("ranked.eloDown")}
+              </div>
+            </motion.div>
+          )}
+
           <div className="flex gap-4 justify-center flex-wrap">
-            <SkewButton variant="primary" onClick={onRematch}>Реванш</SkewButton>
-            <SkewButton variant="secondary" onClick={onHome}>Главная</SkewButton>
+            <SkewButton variant="primary" onClick={onRematch}>{t("gameover.rematch")}</SkewButton>
+            <SkewButton variant="secondary" onClick={onHome}>{t("gameover.home")}</SkewButton>
             {onAnalysis && (
-              <SkewButton variant="outline" onClick={onAnalysis}>Анализ</SkewButton>
+              <SkewButton variant="outline" onClick={onAnalysis}>{t("gameover.analysis")}</SkewButton>
             )}
           </div>
         </motion.div>

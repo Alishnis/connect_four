@@ -73,7 +73,8 @@ export function analyzeGame(moveSequence: number[]): CoachReport {
     const evalAfterActual = currentPlayer === 1 ? evalFromCurrentPlayer : -evalFromCurrentPlayer;
 
     // evalDrop: how much worse than optimal (from current player's perspective, for blunder detection)
-    const evalDrop = ai.evalScore - evalFromCurrentPlayer;
+    // If player chose the AI's recommended column, evalDrop is 0 by definition
+    const evalDrop = col === bestCol ? 0 : Math.max(0, ai.evalScore - evalFromCurrentPlayer);
     const isBlunder = evalDrop > 50;
 
     // Check for missed immediate win
@@ -135,16 +136,16 @@ export function analyzeGame(moveSequence: number[]): CoachReport {
   const goodMoves = analyses.filter(a => a.evalDrop < 20).length;
   const accuracyScore = analyses.length > 0 ? Math.round((goodMoves / analyses.length) * 100) : 100;
 
-  // Verdict
+  // Verdict — stored as @@key@@vars@@ format for i18n
   let verdict = "";
   if (blunders.length === 0 && missedWins.length === 0) {
-    verdict = `Flawless execution. ${moveSequence.length} moves, zero critical errors.`;
+    verdict = `@@verdict.flawlessAll@@${JSON.stringify({ n: moveSequence.length })}@@`;
   } else if (blunders.length >= 3) {
-    verdict = `Rough game — ${blunders.length} blunders. Study the highlighted moves to improve.`;
+    verdict = `@@verdict.roughAll@@${JSON.stringify({ n: blunders.length })}@@`;
   } else if (missedWins.length > 0) {
-    verdict = `You had ${missedWins.length} winning opportunit${missedWins.length > 1 ? "ies" : "y"} and didn't take ${missedWins.length > 1 ? "them" : "it"}.`;
+    verdict = `@@verdict.missedWinsAll@@${JSON.stringify({ n: missedWins.length })}@@`;
   } else {
-    verdict = `Solid game with ${blunders.length} blunder${blunders.length > 1 ? "s" : ""}. Almost perfect.`;
+    verdict = `@@verdict.solidAll@@${JSON.stringify({ n: blunders.length })}@@`;
   }
 
   return {

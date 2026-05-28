@@ -15,6 +15,7 @@ import {
 } from "@/lib/skins/localStore";
 import { createClient } from "@/lib/supabase/client";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const RARITY_COLORS: Record<SkinRarity, string> = {
   common: "#888888",
@@ -23,11 +24,29 @@ const RARITY_COLORS: Record<SkinRarity, string> = {
   legendary: "#FF9900",
 };
 
-const RARITY_LABELS: Record<SkinRarity, string> = {
-  common: "Обычный",
-  rare: "Редкий",
-  epic: "Эпический",
-  legendary: "Легендарный",
+const RARITY_LABEL_KEYS: Record<SkinRarity, string> = {
+  common: "shop.rarity.common",
+  rare: "shop.rarity.rare",
+  epic: "shop.rarity.epic",
+  legendary: "shop.rarity.legendary",
+};
+
+const SKIN_NAME_KEYS: Record<string, string> = {
+  classic: "skin.classic",
+  neon_pulse: "skin.neon_pulse",
+  pixel_art: "skin.pixel_art",
+  holographic: "skin.holographic",
+  fire_ice: "skin.fire_ice",
+  glitch: "skin.glitch",
+};
+
+const SKIN_DESC_KEYS: Record<string, string> = {
+  classic: "skin.classic.desc",
+  neon_pulse: "skin.neon_pulse.desc",
+  pixel_art: "skin.pixel_art.desc",
+  holographic: "skin.holographic.desc",
+  fire_ice: "skin.fire_ice.desc",
+  glitch: "skin.glitch.desc",
 };
 
 function SkinPreviewDisc({ style, size = 48 }: { style: SkinDefinition["player1"]; size?: number }) {
@@ -47,6 +66,7 @@ function SkinPreviewDisc({ style, size = 48 }: { style: SkinDefinition["player1"
 
 export default function ShopPage() {
   const { user, profile } = useAuth();
+  const { t } = useLanguage();
   const [coins, setCoins] = useState(0);
   const [ownedSkins, setOwnedSkins] = useState<string[]>(["classic"]);
   const [activeSkin, setActiveSkinState] = useState("classic");
@@ -130,7 +150,7 @@ export default function ShopPage() {
                 textShadow: "0 0 20px #FF00FF",
               }}
             >
-              МАГАЗИН СКИНОВ
+              {t("shop.title")}
             </h1>
             <motion.div
               className="flex items-center gap-2 px-4 py-2"
@@ -176,7 +196,7 @@ export default function ShopPage() {
                         background: `${rarityColor}11`,
                       }}
                     >
-                      {RARITY_LABELS[skin.rarity]}
+                      {t(RARITY_LABEL_KEYS[skin.rarity])}
                     </span>
                     {skin.price > 0 && (
                       <span
@@ -188,7 +208,7 @@ export default function ShopPage() {
                     )}
                     {skin.price === 0 && (
                       <span className="font-mono text-xs text-[#E0E0E0]/40">
-                        Бесплатно
+                        {t("shop.free")}
                       </span>
                     )}
                   </div>
@@ -206,10 +226,10 @@ export default function ShopPage() {
                       className="font-heading font-bold text-lg mb-1"
                       style={{ fontFamily: "Orbitron, sans-serif", color: "#E0E0E0" }}
                     >
-                      {skin.name}
+                      {t(SKIN_NAME_KEYS[skin.id] ?? skin.id)}
                     </div>
                     <div className="font-mono text-[11px] text-[#E0E0E0]/50 leading-relaxed">
-                      {skin.description}
+                      {t(SKIN_DESC_KEYS[skin.id] ?? skin.id)}
                     </div>
                   </div>
 
@@ -221,7 +241,7 @@ export default function ShopPage() {
                         disabled
                         className="!px-6 !py-2 !text-xs !opacity-60"
                       >
-                        Активен &#x2713;
+                        {t("shop.active")} &#x2713;
                       </SkewButton>
                     ) : owned ? (
                       <SkewButton
@@ -229,7 +249,7 @@ export default function ShopPage() {
                         onClick={() => equipSkin(skin.id)}
                         className="!px-6 !py-2 !text-xs"
                       >
-                        Экипировать
+                        {t("shop.equip")}
                       </SkewButton>
                     ) : (
                       <SkewButton
@@ -241,8 +261,8 @@ export default function ShopPage() {
                         {buying === skin.id
                           ? "..."
                           : canAfford
-                            ? "Купить"
-                            : `Нужно ${skin.price} NC`}
+                            ? t("shop.buy")
+                            : t("shop.need", { n: skin.price })}
                       </SkewButton>
                     )}
                   </div>

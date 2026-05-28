@@ -4,6 +4,7 @@ import { Player } from "@/lib/game/constants";
 import type { TimeControl } from "@/lib/game/constants";
 import { useSkin } from "@/lib/skins/SkinContext";
 import TimerDisplay from "./TimerDisplay";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface Props {
   currentPlayer: Player;
@@ -17,6 +18,7 @@ interface Props {
 
 export default function ScoreBar({ currentPlayer, playerNames = ["PLAYER 1", "PLAYER 2"], moveCount, status, timeControl, timeLeft, moveTimeLeft }: Props) {
   const skin = useSkin();
+  const { t } = useLanguage();
 
   return (
     <div className="mb-4 px-1">
@@ -36,7 +38,7 @@ export default function ScoreBar({ currentPlayer, playerNames = ["PLAYER 1", "PL
 
       {/* Move counter */}
       <div className="text-center">
-        <div className="font-mono text-xs text-[#E0E0E0]/50 uppercase tracking-widest">Ход</div>
+        <div className="font-mono text-xs text-[#E0E0E0]/50 uppercase tracking-widest">{t("game.move")}</div>
         <div className="font-heading font-bold text-xl" style={{ color: "#FF9900", fontFamily: "Orbitron, sans-serif" }}>
           {moveCount.toString().padStart(2, "0")}
         </div>

@@ -4,6 +4,19 @@ import { motion } from "framer-motion";
 import type { CoachReport } from "@/lib/game/coach";
 import type { Board } from "@/lib/game/constants";
 import GlowCard from "@/components/vaporwave/GlowCard";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+
+/** Parse tip text that may contain @@key@@vars@@ format from coachTips */
+function parseTip(tipText: string, t: (key: string, vars?: Record<string, string | number>) => string): string {
+  const match = tipText.match(/^@@(.+?)@@(.*?)@@$/);
+  if (match) {
+    const key = match[1];
+    const varsJson = match[2];
+    const vars = varsJson ? JSON.parse(varsJson) : undefined;
+    return t(key, vars);
+  }
+  return tipText;
+}
 
 interface Props {
   report: CoachReport;
@@ -92,6 +105,7 @@ function MiniBoard({ board, playedRow, playedCol, bestCol, player }: MiniBoardPr
 
 export default function CoachPanel({ report, playerFilter }: Props) {
   const [selectedMove, setSelectedMove] = useState<number | null>(null);
+  const { t } = useLanguage();
 
   const moves = playerFilter ? report.moves.filter(m => m.player === playerFilter) : report.moves;
   const blunders = playerFilter ? report.blunders.filter(m => m.player === playerFilter) : report.blunders;
@@ -101,19 +115,19 @@ export default function CoachPanel({ report, playerFilter }: Props) {
   const goodMoves = moves.filter(m => m.evalDrop < 10).length;
   const accuracyScore = moves.length > 0 ? Math.round((goodMoves / moves.length) * 100) : report.accuracyScore;
 
-  let verdict = report.verdict;
+  let verdict = parseTip(report.verdict, t);
   if (playerFilter) {
     const totalErrors = blunders.length + missedWins.length + inaccuracies.length;
     if (totalErrors === 0) {
-      verdict = `Безупречно. ${moves.length} ходов, ноль ошибок.`;
+      verdict = t("verdict.flawless", { n: moves.length });
     } else if (blunders.length >= 3) {
-      verdict = `Тяжёлая игра — ${blunders.length} грубых ошибок. Изучи выделенные ходы.`;
+      verdict = t("verdict.rough", { n: blunders.length });
     } else if (missedWins.length > 0) {
-      verdict = `У тебя было ${missedWins.length} победный шанс — ты его упустил.`;
+      verdict = t("verdict.missedWins", { n: missedWins.length });
     } else if (blunders.length > 0) {
-      verdict = `Хорошая игра: ${blunders.length} ошибок и ${inaccuracies.length} неточностей.`;
+      verdict = t("verdict.goodWithBlunders", { blunders: blunders.length, inaccuracies: inaccuracies.length });
     } else {
-      verdict = `Хорошая игра: ${inaccuracies.length} неточностей. Есть куда расти.`;
+      verdict = t("verdict.goodWithInaccuracies", { n: inaccuracies.length });
     }
   }
 
@@ -125,22 +139,22 @@ export default function CoachPanel({ report, playerFilter }: Props) {
       <GlowCard accentColor="magenta">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <div className="font-mono text-xs uppercase tracking-widest text-[#E0E0E0]/50 mb-1">Вердикт тренера</div>
+            <div className="font-mono text-xs uppercase tracking-widest text-[#E0E0E0]/50 mb-1">{t("coach.verdict")}</div>
             <p className="font-mono text-sm text-[#E0E0E0] leading-relaxed max-w-lg">{verdict}</p>
           </div>
           <div className="text-center">
             <div className="font-heading font-black text-4xl" style={{ color: verdictColor, fontFamily: "Orbitron, sans-serif", textShadow: `0 0 20px ${verdictColor}` }}>
               {accuracyScore}%
             </div>
-            <div className="font-mono text-xs uppercase tracking-widest text-[#E0E0E0]/50">Точность</div>
+            <div className="font-mono text-xs uppercase tracking-widest text-[#E0E0E0]/50">{t("coach.accuracy")}</div>
           </div>
         </div>
         <div className="flex gap-6 mt-6 pt-4 flex-wrap" style={{ borderTop: "1px solid #2D1B4E" }}>
           {[
-            { label: "Ходы", value: moves.length, color: "#E0E0E0" },
-            { label: "Грубые ошибки", value: blunders.length, color: "#FF2D78" },
-            { label: "Неточности", value: inaccuracies.length, color: "#FF9900" },
-            { label: "Пропущенные победы", value: missedWins.length, color: "#FF4500" },
+            { label: t("coach.moves"), value: moves.length, color: "#E0E0E0" },
+            { label: t("coach.blunders"), value: blunders.length, color: "#FF2D78" },
+            { label: t("coach.inaccuracies"), value: inaccuracies.length, color: "#FF9900" },
+            { label: t("coach.missedWins"), value: missedWins.length, color: "#FF4500" },
           ].map(s => (
             <div key={s.label}>
               <div className="font-heading font-bold text-xl" style={{ color: s.color, fontFamily: "Orbitron, sans-serif" }}>{s.value}</div>
@@ -152,7 +166,7 @@ export default function CoachPanel({ report, playerFilter }: Props) {
 
       {/* Move timeline */}
       <GlowCard accentColor="cyan">
-        <div className="font-mono text-xs uppercase tracking-widest text-[#00FFFF] mb-4">Хронология</div>
+        <div className="font-mono text-xs uppercase tracking-widest text-[#00FFFF] mb-4">{t("coach.timeline")}</div>
         <div className="flex flex-wrap gap-2">
           {moves.map((move, idx) => {
             const isLastMove = idx === moves.length - 1;
@@ -189,19 +203,19 @@ export default function CoachPanel({ report, playerFilter }: Props) {
         {/* Legend */}
         <div className="flex gap-4 mt-4 flex-wrap">
           <div className="flex items-center gap-2 font-mono text-xs text-[#E0E0E0]/50">
-            <div className="w-3 h-3 rounded-full" style={{ background: "#FF2D78" }} /> Ошибка
+            <div className="w-3 h-3 rounded-full" style={{ background: "#FF2D78" }} /> {t("legend.blunder")}
           </div>
           <div className="flex items-center gap-2 font-mono text-xs text-[#E0E0E0]/50">
-            <div className="w-3 h-3 rounded-full" style={{ background: "#FF4500" }} /> Упущена победа
+            <div className="w-3 h-3 rounded-full" style={{ background: "#FF4500" }} /> {t("legend.missedWin")}
           </div>
           <div className="flex items-center gap-2 font-mono text-xs text-[#E0E0E0]/50">
-            <div className="w-3 h-3 rounded-full" style={{ background: "#FF9900" }} /> Неточность
+            <div className="w-3 h-3 rounded-full" style={{ background: "#FF9900" }} /> {t("legend.inaccuracy")}
           </div>
           <div className="flex items-center gap-2 font-mono text-xs text-[#E0E0E0]/50">
-            <div className="w-3 h-3 rounded-full" style={{ background: "#00FFFF" }} /> Оптимально
+            <div className="w-3 h-3 rounded-full" style={{ background: "#00FFFF" }} /> {t("legend.optimal")}
           </div>
           <div className="flex items-center gap-2 font-mono text-xs text-[#E0E0E0]/50">
-            <div className="w-3 h-3 rounded-full" style={{ background: "#10B981" }} /> Победа
+            <div className="w-3 h-3 rounded-full" style={{ background: "#10B981" }} /> {t("legend.win")}
           </div>
         </div>
 
@@ -237,7 +251,7 @@ export default function CoachPanel({ report, playerFilter }: Props) {
                 {/* Mini board */}
                 <div>
                   <div className="font-mono text-xs text-[#E0E0E0]/40 mb-1 uppercase tracking-widest">
-                    Ход #{move.moveNumber}
+                    {t("coach.moveN", { n: move.moveNumber })}
                   </div>
                   <MiniBoard
                     board={boardAfter}
@@ -248,7 +262,7 @@ export default function CoachPanel({ report, playerFilter }: Props) {
                   />
                   {showBestHint && (
                     <div className="font-mono text-xs mt-1" style={{ color: "#FF9900" }}>
-                      ● Лучший: Кол. {move.bestCol + 1}
+                      {t("coach.bestCol", { n: move.bestCol + 1 })}
                     </div>
                   )}
                 </div>
@@ -257,40 +271,40 @@ export default function CoachPanel({ report, playerFilter }: Props) {
                 <div className="font-mono text-sm flex-1 pt-5">
                   <div className="mb-2" style={{ color: flagColor }}>
                     {isLastMoveDetail && report.winningSide !== null
-                      ? move.player === report.winningSide ? "🏆 Победный ход" : "💀 Проигрышный ход"
-                      : move.isBlunder ? "⚠ Грубая ошибка" : move.isMissedWin ? "★ Упущена победа" : isInaccuracy ? "~ Неточность" : "✓ Оптимально"}
+                      ? move.player === report.winningSide ? t("coach.winMove") : t("coach.loseMove")
+                      : move.isBlunder ? t("coach.blunder") : move.isMissedWin ? t("coach.missedWin") : isInaccuracy ? t("coach.inaccuracy") : t("coach.optimal")}
                   </div>
                   <div className="text-[#E0E0E0]/60 mb-1">
-                    Сыграно: <span style={{ color: move.player === 1 ? "#FF2D78" : "#00CCFF" }}>Кол. {move.column + 1}</span>
+                    {t("coach.played")}: <span style={{ color: move.player === 1 ? "#FF2D78" : "#00CCFF" }}>{t("coach.col", { n: move.column + 1 })}</span>
                   </div>
                   <div className="text-[#E0E0E0]/60 mb-1">
-                    Лучший: <span style={{ color: "#FF9900" }}>Кол. {move.bestCol + 1}</span>
+                    {t("coach.best")}: <span style={{ color: "#FF9900" }}>{t("coach.col", { n: move.bestCol + 1 })}</span>
                   </div>
                   {move.isBlunder && (
                     <div className="text-[#FF2D78] mt-2 text-xs">
-                      Оценка упала на {move.evalDrop} пт ниже оптимала
+                      {t("coach.evalDrop", { n: move.evalDrop })}
                     </div>
                   )}
                   {move.isMissedWin && (
                     <div className="text-[#FF9900] mt-2 text-xs">
-                      Кол. {move.bestCol + 1} — немедленная победа
+                      {t("coach.immWin", { n: move.bestCol + 1 })}
                     </div>
                   )}
                   {isInaccuracy && (
                     <div className="text-[#FF9900] mt-2 text-xs">
-                      {move.evalDrop} пт ниже оптимала — лучше: Кол. {move.bestCol + 1}
+                      {t("coach.inaccDetail", { n: move.evalDrop, col: move.bestCol + 1 })}
                     </div>
                   )}
                   {!move.isBlunder && !move.isMissedWin && !isInaccuracy && (
                     <div className="text-[#00FFFF] mt-2 text-xs">
-                      Оптимальный ход
+                      {t("coach.optimalMove")}
                     </div>
                   )}
                   {/* AI Coach tip */}
                   {move.tip && (
                     <div className="mt-3 pt-3" style={{ borderTop: "1px solid #2D1B4E" }}>
-                      <div className="font-mono text-xs uppercase tracking-widest text-[#10B981] mb-1">Совет тренера</div>
-                      <p className="font-mono text-xs text-[#E0E0E0]/80 leading-relaxed">{move.tip}</p>
+                      <div className="font-mono text-xs uppercase tracking-widest text-[#10B981] mb-1">{t("coach.tipLabel")}</div>
+                      <p className="font-mono text-xs text-[#E0E0E0]/80 leading-relaxed">{parseTip(move.tip, t)}</p>
                     </div>
                   )}
                 </div>
@@ -303,14 +317,14 @@ export default function CoachPanel({ report, playerFilter }: Props) {
       {/* Blunders list */}
       {blunders.length > 0 && (
         <GlowCard accentColor="magenta">
-          <div className="font-mono text-xs uppercase tracking-widest text-[#FF00FF] mb-4">Критические ошибки</div>
+          <div className="font-mono text-xs uppercase tracking-widest text-[#FF00FF] mb-4">{t("coach.criticalErrors")}</div>
           <div className="space-y-3">
             {blunders.map(b => (
               <div key={b.moveNumber} className="p-3 font-mono text-sm"
                 style={{ background: "rgba(255,45,120,0.05)", border: "1px solid rgba(255,45,120,0.2)" }}>
-                <span className="text-[#FF2D78]">Ход #{b.moveNumber}</span>
-                <span className="text-[#E0E0E0]/60"> — сыграно Кол. {b.column + 1}, лучший был Кол. {b.bestCol + 1}.</span>
-                {b.isMissedWin && <span className="text-[#FF9900]"> Упущена немедленная победа.</span>}
+                <span className="text-[#FF2D78]">{t("coach.moveN", { n: b.moveNumber })}</span>
+                <span className="text-[#E0E0E0]/60"> — {t("coach.blunderEntry", { n: b.moveNumber, col: b.column + 1, best: b.bestCol + 1 })}</span>
+                {b.isMissedWin && <span className="text-[#FF9900]"> {t("coach.missedWinNote")}</span>}
               </div>
             ))}
           </div>

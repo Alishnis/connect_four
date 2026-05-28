@@ -5,11 +5,14 @@ import SkewButton from "@/components/vaporwave/SkewButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/lib/theme";
 import { getLocalCoins } from "@/lib/skins/localStore";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import LanguageToggle from "./LanguageToggle";
 
 export default function Navbar() {
   const { user, profile, loading, signOut } = useAuth();
   const { theme, toggle } = useTheme();
   const [localCoins, setLocalCoins] = useState(0);
+  const { t } = useLanguage();
 
   useEffect(() => {
     setLocalCoins(getLocalCoins());
@@ -25,20 +28,21 @@ export default function Navbar() {
       </Link>
       <div className="flex items-center gap-6">
         <Link href="/leaderboard" className="font-mono text-sm uppercase tracking-wider text-[#E0E0E0] hover:text-[#00FFFF] transition-colors hidden sm:block">
-          Рейтинг
+          {t("nav.rating")}
         </Link>
         <Link href="/play" className="font-mono text-sm uppercase tracking-wider text-[#E0E0E0] hover:text-[#00FFFF] transition-colors hidden sm:block">
-          Играть
+          {t("nav.play")}
         </Link>
         <Link href="/shop" className="font-mono text-sm uppercase tracking-wider text-[#E0E0E0] hover:text-[#FF00FF] transition-colors hidden sm:block">
-          Магазин
+          {t("nav.shop")}
         </Link>
         {/* Coin display */}
         <div className="flex items-center gap-1 font-mono text-xs" style={{ color: "#FF9900" }}>
           <span>&#x1FA99;</span>
           <span>{displayCoins} NC</span>
         </div>
-        <button onClick={toggle} className="font-mono text-sm text-[#E0E0E0] hover:text-[#FF9900] transition-colors" title="Сменить тему">
+        <LanguageToggle />
+        <button onClick={toggle} className="font-mono text-sm text-[#E0E0E0] hover:text-[#FF9900] transition-colors" title={t("nav.theme")}>
           {theme === "dark" ? "☀️" : "🌙"}
         </button>
         {!loading && (
@@ -48,12 +52,12 @@ export default function Navbar() {
                 {profile?.username ?? user.email?.split("@")[0]}
               </Link>
               <SkewButton variant="outline" onClick={signOut} className="!px-4 !py-2 !text-xs">
-                Выйти
+                {t("nav.logout")}
               </SkewButton>
             </div>
           ) : (
             <Link href="/login">
-              <SkewButton variant="secondary" className="!px-5 !py-2 !text-xs">Войти</SkewButton>
+              <SkewButton variant="secondary" className="!px-5 !py-2 !text-xs">{t("nav.login")}</SkewButton>
             </Link>
           )
         )}

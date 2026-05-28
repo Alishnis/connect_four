@@ -3,24 +3,26 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SkewButton from "@/components/vaporwave/SkewButton";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface Props {
   open: boolean;
   onClose: () => void;
 }
 
-const features = [
-  { icon: "🎨", title: "Скины дисков", desc: "Неон · Голограмма · Пиксель · Глитч" },
-  { icon: "🖼️", title: "Темы доски", desc: "Киберпанк · Космос · Кровавая луна" },
-  { icon: "🧠", title: "ИИ Тренер", desc: "Детальный разбор каждого матча" },
-  { icon: "💡", title: "Безлимит подсказок", desc: "Без ограничения в 2 подсказки" },
-  { icon: "🎬", title: "Повтор матчей", desc: "Пересмотри любую прошлую игру" },
-  { icon: "🏆", title: "PRO значок", desc: "Выделяйся в рейтинге" },
+const featureKeys = [
+  { icon: "🎨", titleKey: "pro.feat1", descKey: "pro.feat1.desc" },
+  { icon: "🖼️", titleKey: "pro.feat2", descKey: "pro.feat2.desc" },
+  { icon: "🧠", titleKey: "pro.feat3", descKey: "pro.feat3.desc" },
+  { icon: "💡", titleKey: "pro.feat4", descKey: "pro.feat4.desc" },
+  { icon: "🎬", titleKey: "pro.feat5", descKey: "pro.feat5.desc" },
+  { icon: "🏆", titleKey: "pro.feat6", descKey: "pro.feat6.desc" },
 ];
 
 export default function ProModal({ open, onClose }: Props) {
   const { user } = useAuth();
   const [loading, setLoading] = useState<"monthly" | "yearly" | null>(null);
+  const { t } = useLanguage();
 
   const handleCheckout = async (plan: "monthly" | "yearly") => {
     setLoading(plan);
@@ -69,9 +71,9 @@ export default function ProModal({ open, onClose }: Props) {
             <div className="p-6 pb-0">
               <div className="flex justify-between items-start">
                 <div>
-                  <div className="font-mono text-xs uppercase tracking-widest text-[#FF9900] mb-1">⚡ Апгрейд</div>
+                  <div className="font-mono text-xs uppercase tracking-widest text-[#FF9900] mb-1">{t("pro.upgrade")}</div>
                   <h2 className="font-heading font-black text-4xl text-glow-magenta" style={{ color: "#FF00FF", fontFamily: "Orbitron, sans-serif" }}>
-                    GO PRO
+                    {t("pro.title")}
                   </h2>
                 </div>
                 <button onClick={onClose} className="font-mono text-[#E0E0E0]/50 hover:text-[#FF00FF] text-xl transition-colors cursor-pointer">✕</button>
@@ -80,11 +82,11 @@ export default function ProModal({ open, onClose }: Props) {
 
             {/* Features grid */}
             <div className="p-6 grid grid-cols-2 gap-3">
-              {features.map(f => (
-                <div key={f.title} className="p-3" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid #2D1B4E" }}>
+              {featureKeys.map(f => (
+                <div key={f.titleKey} className="p-3" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid #2D1B4E" }}>
                   <div className="text-xl mb-1">{f.icon}</div>
-                  <div className="font-mono text-xs font-bold text-[#00FFFF] uppercase tracking-wider">{f.title}</div>
-                  <div className="font-mono text-xs text-[#E0E0E0]/50 mt-0.5">{f.desc}</div>
+                  <div className="font-mono text-xs font-bold text-[#00FFFF] uppercase tracking-wider">{t(f.titleKey)}</div>
+                  <div className="font-mono text-xs text-[#E0E0E0]/50 mt-0.5">{t(f.descKey)}</div>
                 </div>
               ))}
             </div>
@@ -97,7 +99,7 @@ export default function ProModal({ open, onClose }: Props) {
                 onClick={() => handleCheckout("monthly")}
                 disabled={loading !== null}
               >
-                {loading === "monthly" ? "Переход к оплате..." : "Подписка — $3.99/мес"}
+                {loading === "monthly" ? t("pro.processing") : t("pro.monthly")}
               </SkewButton>
               <SkewButton
                 variant="secondary"
@@ -105,14 +107,14 @@ export default function ProModal({ open, onClose }: Props) {
                 onClick={() => handleCheckout("yearly")}
                 disabled={loading !== null}
               >
-                {loading === "yearly" ? "Переход к оплате..." : "Годовая — $29/год (экономия 40%)"}
+                {loading === "yearly" ? t("pro.processing") : t("pro.yearly")}
               </SkewButton>
               <div className="text-center font-mono text-xs text-[#E0E0E0]/40">
-                Безопасная оплата через Stripe · Отмена в любое время
+                {t("pro.safe")}
               </div>
               {!user && (
                 <div className="text-center font-mono text-xs text-[#FF9900]">
-                  ⚠ Войдите в аккаунт для оформления подписки
+                  {t("pro.loginRequired")}
                 </div>
               )}
             </div>

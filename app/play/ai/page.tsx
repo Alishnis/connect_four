@@ -17,11 +17,13 @@ import { useTimer } from "@/hooks/useTimer";
 import { DEFAULT_TIME_CONTROL, BLITZ_TIME_CONTROL, SPRINT_TIME_CONTROL } from "@/lib/game/constants";
 import type { TimeControlMode, TimeControl } from "@/lib/game/constants";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 function AIGameContent() {
   const { state, lastMove, makeMove, setAIThinking, setHint, reset, forceMove, timeoutLoss } = useGame();
   const { reward, awardCoins, resetReward } = useCoinReward();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [timeControlMode, setTimeControlMode] = useState<TimeControlMode>("classic");
   const [showHint, setShowHint] = useState(false);
@@ -47,7 +49,7 @@ function AIGameContent() {
     if (state.status === "game_over" && moveHistoryRef.current.length > 0) {
       sessionStorage.setItem("lastGameMoves", JSON.stringify(moveHistoryRef.current));
       sessionStorage.setItem("lastGameWinner", String(state.winner ?? "null"));
-      sessionStorage.setItem("lastGamePlayers", JSON.stringify(["ВЫ", `ИИ [${difficulty.toUpperCase()}]`]));
+      sessionStorage.setItem("lastGamePlayers", JSON.stringify([t("game.you"), `${t("game.ai")} [${difficulty.toUpperCase()}]`]));
     }
   }, [state.status, state.winner]);
 
@@ -123,7 +125,7 @@ function AIGameContent() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <h1 className="font-heading font-black text-2xl" style={{ color: "#FF00FF", fontFamily: "Orbitron, sans-serif" }}>
-              ПРОТИВ ИИ
+              {t("game.vsAI")}
             </h1>
             <div className="w-64">
               <DifficultyPicker value={difficulty} onChange={(d) => { setDifficulty(d); handleReset(); }} />
@@ -136,7 +138,7 @@ function AIGameContent() {
           <GlowCard accentColor="cyan" className="!p-2 sm:!p-4">
             <ScoreBar
               currentPlayer={state.currentPlayer}
-              playerNames={["ВЫ", `ИИ [${difficulty.toUpperCase()}]`]}
+              playerNames={[t("game.you"), `${t("game.ai")} [${difficulty.toUpperCase()}]`]}
               moveCount={state.moveCount}
               status={state.status}
               timeControl={timeControl}
@@ -148,7 +150,7 @@ function AIGameContent() {
             {state.status === "ai_thinking" && (
               <div className="text-center mb-2 font-mono text-xs uppercase tracking-widest animate-pulse"
                 style={{ color: "#FF9900" }}>
-                ⚡ Вычисляю лучший ход...
+                ⚡ {t("game.aiThinking")}
               </div>
             )}
 
@@ -172,10 +174,10 @@ function AIGameContent() {
             {/* Controls */}
             <div className="flex gap-3 mt-4 justify-center">
               <SkewButton variant="secondary" onClick={handleHint} className="!px-4 !py-2 !text-xs">
-                {showHint ? "Скрыть" : "Подсказка (2 ост.)"}
+                {showHint ? t("game.hide") : `${t("game.hint")} (2 ${t("game.hintsLeft")})`}
               </SkewButton>
               <SkewButton variant="outline" onClick={handleReset} className="!px-4 !py-2 !text-xs">
-                Сдаться
+                {t("game.resign")}
               </SkewButton>
             </div>
           </GlowCard>
@@ -189,7 +191,7 @@ function AIGameContent() {
           onRematch={handleReset}
           onHome={() => router.push("/play")}
           onAnalysis={handleAnalysis}
-          playerNames={["ВЫ", "ИИ"]}
+          playerNames={[t("game.you"), t("game.ai")]}
           coinReward={reward}
           timeoutLoser={state.timeoutLoser}
         />

@@ -71,6 +71,19 @@ function countPieces(board: Board): number {
   return count;
 }
 
+// Helper: resolve a translation key with variables into a string
+// Uses the same {var} interpolation as LanguageContext
+function resolve(key: string, vars?: Record<string, string | number>): string {
+  // We return a special format: key::json_vars so the UI can translate
+  // Actually, since coach.ts calls this at analysis time (not render time),
+  // and the tip is stored as a string, we need to return a translatable format.
+  // We'll use the format: @@key@@vars_json@@ which CoachPanel can parse.
+  if (vars) {
+    return `@@${key}@@${JSON.stringify(vars)}@@`;
+  }
+  return `@@${key}@@@@`;
+}
+
 export function generateMoveTip(params: {
   board: Board;
   column: number;
@@ -89,18 +102,18 @@ export function generateMoveTip(params: {
 
   // 1. Won the game
   if (wonGame && winningSide === player) {
-    return { text: "Финальный ход — четыре в ряд! Победа!", category: "win" };
+    return { text: resolve("tip.finalWin"), category: "win" };
   }
 
   // 2. Lost (last move of loser)
   if (isLastMove && winningSide !== null && winningSide !== player) {
-    return { text: "Последний ход не спас ситуацию.", category: "blunder" };
+    return { text: resolve("tip.lastLoss"), category: "blunder" };
   }
 
   // 3. Missed immediate win
   if (isMissedWin) {
     return {
-      text: `Колонка ${bestCol + 1} давала немедленную победу! Ты этого не заметил.`,
+      text: resolve("tip.missedWin", { col: bestCol + 1 }),
       category: "blunder",
     };
   }
@@ -108,7 +121,7 @@ export function generateMoveTip(params: {
   // Play the move to get the board after
   const result = dropDisc(board, column, player);
   if (!result) {
-    return { text: "Солидный ход. Позиция стабильна.", category: "neutral" };
+    return { text: resolve("tip.solid"), category: "neutral" };
   }
   const boardAfter = result.board;
 
@@ -122,7 +135,7 @@ export function generateMoveTip(params: {
       const stillThreat = opponentCanWinNext(afterBest, opponent);
       if (stillThreat === null) {
         return {
-          text: `Соперник мог выиграть в колонке ${opponentWinCol + 1}. Нужно было блокировать!`,
+          text: resolve("tip.unblocked", { col: opponentWinCol + 1 }),
           category: "threat",
         };
       }
@@ -133,7 +146,7 @@ export function generateMoveTip(params: {
   const threatsAfter = countThreats(boardAfter, player);
   if (threatsAfter >= 2) {
     return {
-      text: "Отличный ход! Создана вилка — у соперника нет защиты.",
+      text: resolve("tip.fork"),
       category: "fork",
     };
   }
@@ -144,7 +157,7 @@ export function generateMoveTip(params: {
     const threatsAfterForOpponent = countThreats(boardAfter, opponent);
     if (threatsAfterForOpponent < threatsBefore) {
       return {
-        text: "Хорошая защита — заблокирована угроза соперника.",
+        text: resolve("tip.block"),
         category: "block",
       };
     }
@@ -153,7 +166,7 @@ export function generateMoveTip(params: {
   // 7. Center column play in early game
   if (column === 3 && pieces < 10) {
     return {
-      text: "Центр — ключевая позиция. Контроль центра даёт преимущество.",
+      text: resolve("tip.center"),
       category: "center",
     };
   }
@@ -161,7 +174,7 @@ export function generateMoveTip(params: {
   // 8. Setup move (3 in a row with open end)
   if (hasThreeInRow(boardAfter, result.row, column, player)) {
     return {
-      text: "Строишь линию — три в ряд с открытым концом.",
+      text: resolve("tip.setup"),
       category: "setup",
     };
   }
@@ -169,18 +182,67 @@ export function generateMoveTip(params: {
   // 9. Edge column in early game
   if ((column === 0 || column === 6) && pieces < 10) {
     return {
-      text: "Крайняя колонка в начале — слабый ход. Центр сильнее.",
+      text: resolve("tip.edge"),
       category: "blunder",
     };
   }
 
-  // 10/11. Generic
+  // 10. Suboptimal move — analyze WHY the best column was better
+  if (column !== bestCol && evalDrop >= 10) {
+    const bestResult = dropDisc(board, bestCol, player);
+    if (bestResult) {
+      const bestBoard = bestResult.board;
+
+      // Best move would have created a fork?
+      const bestThreats = countThreats(bestBoard, player);
+      if (bestThreats >= 2) {
+        return {
+          text: resolve("tip.bestFork", { col: bestCol + 1 }),
+          category: "fork",
+        };
+      }
+
+      // Best move would have set up 3 in a row?
+      if (hasThreeInRow(bestBoard, bestResult.row, bestCol, player)) {
+        return {
+          text: resolve("tip.bestSetup", { col: bestCol + 1 }),
+          category: "setup",
+        };
+      }
+
+      // Best move was center and played was not?
+      if (bestCol === 3 && column !== 3 && pieces < 14) {
+        return {
+          text: resolve("tip.bestCenter", { col: bestCol + 1 }),
+          category: "center",
+        };
+      }
+
+      // Best move blocked opponent threat that the actual move didn't?
+      const opponentThreatAfterBest = opponentCanWinNext(bestBoard, opponent);
+      const opponentThreatAfterActual = opponentCanWinNext(boardAfter, opponent);
+      if (opponentThreatAfterActual !== null && opponentThreatAfterBest === null) {
+        return {
+          text: resolve("tip.bestBlock", { col: bestCol + 1 }),
+          category: "threat",
+        };
+      }
+
+      // Generic suboptimal with best column reference
+      return {
+        text: resolve("tip.bestGeneric", { col: bestCol + 1, score: evalDrop }),
+        category: "blunder",
+      };
+    }
+  }
+
+  // 11. Generic blunder
   if (isBlunder) {
     return {
-      text: `Потеря позиционного преимущества на ${evalDrop} очков.`,
+      text: resolve("tip.blunderGeneric", { score: evalDrop, col: bestCol + 1 }),
       category: "blunder",
     };
   }
 
-  return { text: "Солидный ход. Позиция стабильна.", category: "neutral" };
+  return { text: resolve("tip.solid"), category: "neutral" };
 }

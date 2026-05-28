@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PerspectiveGrid from "@/components/vaporwave/PerspectiveGrid";
 import GlowCard from "@/components/vaporwave/GlowCard";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function LobbyPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     async function createRoom() {
@@ -16,7 +18,7 @@ export default function LobbyPage() {
         const { roomId } = await res.json();
         router.push(`/play/${roomId}`);
       } catch (err) {
-        setError("Could not create room. Is Supabase configured?");
+        setError(t("lobby.error"));
       }
     }
     createRoom();
@@ -32,7 +34,7 @@ export default function LobbyPage() {
           ) : (
             <>
               <div className="font-mono text-xs uppercase tracking-widest text-[#00FFFF] mb-4 animate-pulse">
-                Initializing room...
+                {t("lobby.initializing")}
               </div>
               <div className="flex justify-center gap-2">
                 {[0, 1, 2].map(i => (

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface Props {
   url: string;
@@ -8,6 +9,7 @@ interface Props {
 
 export default function ShareLinkBox({ url }: Props) {
   const [copied, setCopied] = useState(false);
+  const { t } = useLanguage();
 
   async function copy() {
     await navigator.clipboard.writeText(url);
@@ -35,7 +37,7 @@ export default function ShareLinkBox({ url }: Props) {
           minWidth: 90,
         }}
       >
-        {copied ? "Copied!" : "Copy"}
+        {copied ? t("room.copied") : t("room.copy")}
       </motion.button>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 import { use, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMultiplayer } from "@/hooks/useMultiplayer";
 import { useCoinReward } from "@/hooks/useCoinReward";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,6 +18,7 @@ import { SkinProvider } from "@/lib/skins/SkinContext";
 import { getLocalActiveSkin } from "@/lib/skins/localStore";
 import { DEFAULT_TIME_CONTROL, BLITZ_TIME_CONTROL, SPRINT_TIME_CONTROL } from "@/lib/game/constants";
 import type { TimeControlMode, TimeControl, Player } from "@/lib/game/constants";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface Props {
   params: Promise<{ roomId: string }>;
@@ -28,9 +29,14 @@ function MultiplayerRoomContent({ roomId }: { roomId: string }) {
   const { reward, awardCoins, resetReward } = useCoinReward();
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
+  const searchParams = useSearchParams();
+  const isRanked = searchParams.get("ranked") === "true";
   const moveHistoryRef = useRef<number[]>([]);
   const [timeControlMode, setTimeControlMode] = useState<TimeControlMode>("classic");
   const [timeoutLoser, setTimeoutLoser] = useState<Player | null>(null);
+  const [eloChange, setEloChange] = useState<number | undefined>(undefined);
+  const rankedResultSent = useRef(false);
 
   const timeControlMap: Record<TimeControlMode, TimeControl> = {
     classic: DEFAULT_TIME_CONTROL,
@@ -75,11 +81,49 @@ function MultiplayerRoomContent({ roomId }: { roomId: string }) {
     }
   }, [state.status]);
 
+  // Submit ranked result and get ELO change
+  useEffect(() => {
+    if (state.status !== "game_over" || !isRanked || rankedResultSent.current) return;
+    rankedResultSent.current = true;
+
+    (async () => {
+      try {
+        // Fetch match ID from room
+        const roomRes = await fetch(`/api/rooms?roomId=${roomId}`);
+        const roomData = await roomRes.json();
+        if (!roomData.id) return;
+
+        const winnerId = state.winner === 1
+          ? roomData.player_red_id
+          : state.winner === 2
+            ? roomData.player_yellow_id
+            : null;
+
+        const res = await fetch("/api/ranked-result", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ matchId: roomData.id, winnerId }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          // Show ELO change for the current player
+          const myChange = state.myPlayer === 1 ? data.eloChangeRed : data.eloChangeYellow;
+          setEloChange(myChange);
+        }
+      } catch {
+        // Non-fatal: ELO display won't show but game still works
+      }
+    })();
+  }, [state.status, isRanked, roomId, state.winner, state.myPlayer, state.isDraw]);
+
   const handleRematch = () => {
     moveHistoryRef.current = [];
     resetReward();
     resetTimer();
     setTimeoutLoser(null);
+    setEloChange(undefined);
+    rankedResultSent.current = false;
     rematch();
   };
 
@@ -123,7 +167,7 @@ function MultiplayerRoomContent({ roomId }: { roomId: string }) {
           <GlowCard accentColor="cyan" className="!p-4">
             <ScoreBar
               currentPlayer={state.currentPlayer}
-              playerNames={["ИГРОК 1", "ИГРОК 2"]}
+              playerNames={[t("game.p1"), t("game.p2")]}
               moveCount={state.moveCount}
               status={state.status}
               timeControl={timeControl}
@@ -133,7 +177,7 @@ function MultiplayerRoomContent({ roomId }: { roomId: string }) {
 
             {!isMyTurn && state.status === "playing" && (
               <div className="text-center mb-2 font-mono text-xs text-[#E0E0E0]/50 uppercase tracking-widest animate-pulse">
-                Ход противника...
+                {t("game.opponentTurn")}
               </div>
             )}
             {isMyTurn && (
@@ -141,7 +185,7 @@ function MultiplayerRoomContent({ roomId }: { roomId: string }) {
                 className="text-center mb-2 font-mono text-xs uppercase tracking-widest"
                 style={{ color: state.myPlayer === 1 ? "#FF2D78" : "#00CCFF" }}
               >
-                Ваш ход
+                {t("game.yourTurn")}
               </div>
             )}
 
@@ -156,7 +200,7 @@ function MultiplayerRoomContent({ roomId }: { roomId: string }) {
 
             <div className="flex gap-3 mt-4 justify-center">
               <SkewButton variant="outline" onClick={resign} className="!px-4 !py-2 !text-xs">
-                Сдаться
+                {t("game.resign")}
               </SkewButton>
             </div>
           </GlowCard>
@@ -170,9 +214,10 @@ function MultiplayerRoomContent({ roomId }: { roomId: string }) {
           onRematch={handleRematch}
           onHome={() => router.push("/play")}
           onAnalysis={handleAnalysis}
-          playerNames={["PLAYER 1", "PLAYER 2"]}
+          playerNames={[t("game.p1"), t("game.p2")]}
           coinReward={reward}
           timeoutLoser={timeoutLoser}
+          eloChange={eloChange}
         />
       )}
     </div>

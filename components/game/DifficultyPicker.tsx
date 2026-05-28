@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export type Difficulty = "easy" | "medium" | "hard";
 
@@ -8,13 +9,15 @@ interface Props {
   onChange: (d: Difficulty) => void;
 }
 
-const levels: { value: Difficulty; label: string; color: string }[] = [
-  { value: "easy",   label: "EASY",  color: "#00FFFF" },
-  { value: "medium", label: "MED",   color: "#FF9900" },
-  { value: "hard",   label: "HARD",  color: "#FF00FF" },
+const levels: { value: Difficulty; labelKey: string; color: string }[] = [
+  { value: "easy",   labelKey: "diff.easy",   color: "#00FFFF" },
+  { value: "medium", labelKey: "diff.medium", color: "#FF9900" },
+  { value: "hard",   labelKey: "diff.hard",   color: "#FF00FF" },
 ];
 
 export default function DifficultyPicker({ value, onChange }: Props) {
+  const { t } = useLanguage();
+
   return (
     <div className="flex gap-1">
       {levels.map(level => (
@@ -32,7 +35,7 @@ export default function DifficultyPicker({ value, onChange }: Props) {
             transition: "all 0.15s linear",
           }}
         >
-          {level.label}
+          {t(level.labelKey)}
         </motion.button>
       ))}
     </div>

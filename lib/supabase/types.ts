@@ -8,6 +8,7 @@ export interface Profile {
   coins: number;
   owned_skins: string[];
   skin_id: string;
+  elo_rating: number;
   created_at: string;
 }
 
@@ -23,6 +24,9 @@ export interface Match {
   total_moves: number | null;
   duration_secs: number | null;
   time_control?: string;
+  is_ranked?: boolean;
+  elo_change_red?: number;
+  elo_change_yellow?: number;
   created_at: string;
 }
 
@@ -44,6 +48,7 @@ export interface LeaderboardEntry {
   avatar_url: string | null;
   city: string | null;
   country: string | null;
+  elo_rating: number;
   wins: number;
   losses: number;
   draws: number;

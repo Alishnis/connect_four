@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 Board: 6 rows × 7 columns. Row 0 = top, Row 5 = bottom. Pieces fall to lowest empty cell.
 Win = 4 in a row (horizontal, vertical, diagonal).
 Strategy: 1) Take winning move if available. 2) Block opponent's winning move. 3) Build threats.
-Respond ONLY with valid JSON: {"column": <integer 0-6>, "reasoning": "<one short sentence in Russian>"}`,
+Respond ONLY with valid JSON: {"column": <integer 0-6>, "reasoning": "<one short sentence>"}`,
         },
         {
           role: "user",
@@ -49,6 +49,6 @@ Respond ONLY with valid JSON: {"column": <integer 0-6>, "reasoning": "<one short
     return NextResponse.json({ column: col, reasoning: parsed.reasoning ?? "" });
   } catch (err) {
     console.error("GPT move error:", err);
-    return NextResponse.json({ column: 3, reasoning: "Ошибка GPT, ход по центру" });
+    return NextResponse.json({ column: 3, reasoning: "GPT error, center move" });
   }
 }

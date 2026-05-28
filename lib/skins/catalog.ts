@@ -20,8 +20,8 @@ export interface SkinDefinition {
 export const SKINS: SkinDefinition[] = [
   {
     id: "classic",
-    name: "Классика",
-    description: "Стандартный неоновый стиль. Розовый против голубого.",
+    name: "Classic",
+    description: "Standard neon style. Pink vs cyan.",
     price: 0,
     rarity: "common",
     player1: {
@@ -35,8 +35,8 @@ export const SKINS: SkinDefinition[] = [
   },
   {
     id: "neon_pulse",
-    name: "Неон Пульс",
-    description: "Пульсирующее неоновое свечение. Гипнотический эффект.",
+    name: "Neon Pulse",
+    description: "Pulsing neon glow. Hypnotic effect.",
     price: 100,
     rarity: "rare",
     player1: {
@@ -52,8 +52,8 @@ export const SKINS: SkinDefinition[] = [
   },
   {
     id: "pixel_art",
-    name: "Пиксель",
-    description: "Ретро-пиксельная эстетика. Квадратные фишки.",
+    name: "Pixel Art",
+    description: "Retro pixel aesthetic. Square discs.",
     price: 150,
     rarity: "rare",
     player1: {
@@ -69,8 +69,8 @@ export const SKINS: SkinDefinition[] = [
   },
   {
     id: "holographic",
-    name: "Голограмма",
-    description: "Радужный голографический эффект. Переливающиеся цвета.",
+    name: "Holographic",
+    description: "Rainbow holographic effect. Shifting colors.",
     price: 250,
     rarity: "epic",
     player1: {
@@ -86,8 +86,8 @@ export const SKINS: SkinDefinition[] = [
   },
   {
     id: "fire_ice",
-    name: "Огонь и Лёд",
-    description: "Стихии сталкиваются. Огненный красный против ледяного голубого.",
+    name: "Fire & Ice",
+    description: "Elements collide. Fiery red vs icy blue.",
     price: 300,
     rarity: "epic",
     player1: {
@@ -101,8 +101,8 @@ export const SKINS: SkinDefinition[] = [
   },
   {
     id: "glitch",
-    name: "Глитч",
-    description: "Сбой в матрице. Дрожащие артефакты из киберпространства.",
+    name: "Glitch",
+    description: "Matrix glitch. Shaking artifacts from cyberspace.",
     price: 500,
     rarity: "legendary",
     player1: {

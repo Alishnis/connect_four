@@ -3,6 +3,7 @@ import GlowCard from "@/components/vaporwave/GlowCard";
 import ShareLinkBox from "./ShareLinkBox";
 import ConnectionBadge from "./ConnectionBadge";
 import type { MultiplayerStatus } from "@/hooks/useMultiplayer";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface Props {
   roomId: string;
@@ -12,6 +13,7 @@ interface Props {
 
 export default function RoomLobby({ roomId, status, myPlayer }: Props) {
   const url = typeof window !== "undefined" ? `${window.location.origin}/play/${roomId}` : "";
+  const { t } = useLanguage();
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
@@ -25,7 +27,7 @@ export default function RoomLobby({ roomId, status, myPlayer }: Props) {
         </div>
 
         <div className="font-mono text-xs uppercase tracking-widest text-[#E0E0E0]/50 mb-2">
-          You are
+          {t("room.youAre")}
         </div>
         <div
           className="font-heading font-black text-4xl mb-1"
@@ -35,10 +37,10 @@ export default function RoomLobby({ roomId, status, myPlayer }: Props) {
             textShadow: myPlayer === 1 ? "0 0 20px #FF00FF" : "0 0 20px #00FFFF",
           }}
         >
-          {myPlayer === 1 ? "PLAYER 1" : myPlayer === 2 ? "PLAYER 2" : "—"}
+          {myPlayer === 1 ? t("game.p1") : myPlayer === 2 ? t("game.p2") : "—"}
         </div>
         <div className="font-mono text-xs uppercase tracking-widest mb-8" style={{ color: myPlayer === 1 ? "#FF2D78" : "#00CCFF" }}>
-          {myPlayer === 1 ? "(Red discs)" : "(Cyan discs)"}
+          {myPlayer === 1 ? t("room.redDiscs") : t("room.cyanDiscs")}
         </div>
 
         <div className="mb-4 flex justify-center">
@@ -48,7 +50,7 @@ export default function RoomLobby({ roomId, status, myPlayer }: Props) {
         {myPlayer === 1 && status === "waiting" && (
           <>
             <p className="font-mono text-sm text-[#E0E0E0]/60 mb-4 uppercase tracking-wider">
-              Share this link with your opponent:
+              {t("room.shareLink")}
             </p>
             <ShareLinkBox url={url} />
           </>

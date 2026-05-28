@@ -6,6 +6,7 @@ import PerspectiveGrid from "@/components/vaporwave/PerspectiveGrid";
 import GlowCard from "@/components/vaporwave/GlowCard";
 import SkewButton from "@/components/vaporwave/SkewButton";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const supabaseConfigured =
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -20,6 +21,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const supabase = createClient();
 
@@ -89,13 +91,13 @@ function LoginForm() {
           <button key={m} onClick={() => setMode(m)}
             className="flex-1 py-2 font-mono text-xs uppercase tracking-widest transition-colors"
             style={{ color: mode === m ? "#FF00FF" : "#E0E0E0", borderBottom: mode === m ? "2px solid #FF00FF" : "2px solid transparent" }}>
-            {m === "login" ? "Login" : "Sign Up"}
+            {m === "login" ? t("auth.login") : t("auth.signup")}
           </button>
         ))}
       </div>
 
       <h1 className="font-heading font-black text-3xl mb-8" style={{ color: "#FF00FF", fontFamily: "Orbitron, sans-serif", textShadow: "0 0 20px #FF00FF" }}>
-        {mode === "login" ? "WELCOME BACK" : "JOIN THE GRID"}
+        {mode === "login" ? t("auth.welcomeBack") : t("auth.joinGrid")}
       </h1>
 
       {success ? (
@@ -107,7 +109,7 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-5">
           {mode === "signup" && (
             <div>
-              <label className="font-mono text-xs uppercase tracking-widest text-[#E0E0E0]/60 block mb-2">&gt; Username</label>
+              <label className="font-mono text-xs uppercase tracking-widest text-[#E0E0E0]/60 block mb-2">&gt; {t("auth.username")}</label>
               <input value={username} onChange={e => setUsername(e.target.value)} required
                 type="text" placeholder="your_handle"
                 className="w-full px-3 py-3 font-mono text-sm bg-black text-[#00FFFF] placeholder:text-[#FF00FF]/30 outline-none"
@@ -115,14 +117,14 @@ function LoginForm() {
             </div>
           )}
           <div>
-            <label className="font-mono text-xs uppercase tracking-widest text-[#E0E0E0]/60 block mb-2">&gt; Email</label>
+            <label className="font-mono text-xs uppercase tracking-widest text-[#E0E0E0]/60 block mb-2">&gt; {t("auth.email")}</label>
             <input value={email} onChange={e => setEmail(e.target.value)} required
               type="email" placeholder="user@grid.io"
               className="w-full px-3 py-3 font-mono text-sm bg-black text-[#00FFFF] placeholder:text-[#FF00FF]/30 outline-none"
               style={{ borderBottom: "2px solid #FF00FF" }} />
           </div>
           <div>
-            <label className="font-mono text-xs uppercase tracking-widest text-[#E0E0E0]/60 block mb-2">&gt; Password</label>
+            <label className="font-mono text-xs uppercase tracking-widest text-[#E0E0E0]/60 block mb-2">&gt; {t("auth.password")}</label>
             <input value={password} onChange={e => setPassword(e.target.value)} required
               type="password" placeholder="••••••••"
               className="w-full px-3 py-3 font-mono text-sm bg-black text-[#00FFFF] placeholder:text-[#FF00FF]/30 outline-none"
@@ -136,12 +138,12 @@ function LoginForm() {
           )}
 
           <SkewButton type="submit" variant="primary" disabled={loading || !supabaseConfigured} className="w-full justify-center !py-4">
-            {loading ? "Processing..." : !supabaseConfigured ? "Auth Disabled" : mode === "login" ? "Access Grid" : "Create Account"}
+            {loading ? t("auth.processing") : !supabaseConfigured ? t("auth.authDisabled") : mode === "login" ? t("auth.loginBtn") : t("auth.signupBtn")}
           </SkewButton>
 
           <div className="relative flex items-center gap-3 py-2">
             <div className="flex-1" style={{ height: 1, background: "#2D1B4E" }} />
-            <span className="font-mono text-xs text-[#E0E0E0]/40 uppercase">or</span>
+            <span className="font-mono text-xs text-[#E0E0E0]/40 uppercase">{t("auth.orGoogle")}</span>
             <div className="flex-1" style={{ height: 1, background: "#2D1B4E" }} />
           </div>
 
@@ -150,7 +152,7 @@ function LoginForm() {
             style={{ border: "2px solid #2D1B4E", color: "#E0E0E0" }}
             onMouseEnter={e => (e.currentTarget.style.borderColor = "#00FFFF")}
             onMouseLeave={e => (e.currentTarget.style.borderColor = "#2D1B4E")}>
-            Continue with Google
+            {t("auth.googleBtn")}
           </button>
         </form>
       )}

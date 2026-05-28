@@ -4,11 +4,13 @@ import { useState } from "react";
 import GlowCard from "@/components/vaporwave/GlowCard";
 import { countryToFlag } from "@/lib/geo/countryFlag";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import type { LeaderboardEntry } from "@/lib/supabase/types";
 
 export type LeaderboardRow = LeaderboardEntry & { rank: number };
 
 type Tab = "global" | "city";
+type SortKey = "elo" | "wins" | "winRate" | "games";
 
 interface Props {
   data: LeaderboardRow[];
@@ -16,18 +18,29 @@ interface Props {
 
 export default function LeaderboardClient({ data }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("global");
+  const [sortBy, setSortBy] = useState<SortKey>("elo");
   const { profile } = useAuth();
+  const { t } = useLanguage();
 
   const userCity = profile?.city ?? null;
 
-  const filtered =
+  const cityFiltered =
     activeTab === "city" && userCity
       ? data.filter((p) => p.city?.toLowerCase() === userCity.toLowerCase())
       : data;
 
+  const filtered = [...cityFiltered].sort((a, b) => {
+    switch (sortBy) {
+      case "elo": return (b.elo_rating ?? 1000) - (a.elo_rating ?? 1000);
+      case "wins": return b.wins - a.wins;
+      case "winRate": return (b.win_rate ?? 0) - (a.win_rate ?? 0);
+      case "games": return (b.total_games ?? 0) - (a.total_games ?? 0);
+    }
+  });
+
   const tabs: { key: Tab; label: string }[] = [
-    { key: "global", label: "Глобальный" },
-    { key: "city", label: "Мой город" },
+    { key: "global", label: t("lb.global") },
+    { key: "city", label: t("lb.myCity") },
   ];
 
   const rankColors: Record<number, string> = { 1: "#FF9900", 2: "#E0E0E0", 3: "#FF9900" };
@@ -35,7 +48,7 @@ export default function LeaderboardClient({ data }: Props) {
   return (
     <>
       {/* Filter tabs */}
-      <div className="flex gap-2 justify-center mb-8">
+      <div className="flex gap-2 justify-center mb-4">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -48,6 +61,30 @@ export default function LeaderboardClient({ data }: Props) {
             }}
           >
             {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Sort buttons */}
+      <div className="flex gap-2 justify-center mb-8 flex-wrap">
+        <span className="font-mono text-xs text-[#E0E0E0]/40 uppercase tracking-widest self-center mr-1">{t("lb.sortBy")}:</span>
+        {([
+          { key: "elo" as SortKey, label: "ELO" },
+          { key: "wins" as SortKey, label: t("lb.wins") },
+          { key: "winRate" as SortKey, label: "Win%" },
+          { key: "games" as SortKey, label: t("lb.games") },
+        ]).map((s) => (
+          <button
+            key={s.key}
+            onClick={() => setSortBy(s.key)}
+            className="px-3 py-1 font-mono text-xs uppercase tracking-widest transition-all cursor-pointer"
+            style={{
+              border: `1px solid ${sortBy === s.key ? "#FF9900" : "#2D1B4E"}`,
+              background: sortBy === s.key ? "rgba(255,153,0,0.15)" : "transparent",
+              color: sortBy === s.key ? "#FF9900" : "#E0E0E0",
+            }}
+          >
+            {s.label}
           </button>
         ))}
       </div>
@@ -74,7 +111,7 @@ export default function LeaderboardClient({ data }: Props) {
         <div className="overflow-x-auto">
           {filtered.length === 0 ? (
             <div className="p-12 text-center font-mono text-[#E0E0E0]/40 uppercase tracking-widest">
-              Нет данных для твоего города
+              {t("lb.noData")}
             </div>
           ) : (
             <table className="w-full">
@@ -84,19 +121,22 @@ export default function LeaderboardClient({ data }: Props) {
                     #
                   </th>
                   <th className="px-4 py-3 font-mono text-xs text-[#E0E0E0]/40 uppercase tracking-widest text-left">
-                    Игрок
-                  </th>
-                  <th className="px-4 py-3 font-mono text-xs text-[#E0E0E0]/40 uppercase tracking-widest text-left">
-                    Город
+                    {t("lb.player")}
                   </th>
                   <th className="px-4 py-3 font-mono text-xs text-[#E0E0E0]/40 uppercase tracking-widest text-right">
-                    Победы
+                    ELO
+                  </th>
+                  <th className="px-4 py-3 font-mono text-xs text-[#E0E0E0]/40 uppercase tracking-widest text-left hidden sm:table-cell">
+                    {t("lb.city")}
+                  </th>
+                  <th className="px-4 py-3 font-mono text-xs text-[#E0E0E0]/40 uppercase tracking-widest text-right">
+                    {t("lb.wins")}
                   </th>
                   <th className="px-4 py-3 font-mono text-xs text-[#E0E0E0]/40 uppercase tracking-widest text-right hidden sm:table-cell">
-                    П/П
+                    {t("lb.wl")}
                   </th>
                   <th className="px-4 py-3 font-mono text-xs text-[#E0E0E0]/40 uppercase tracking-widest text-right">
-                    %Побед
+                    {t("lb.winRate")}
                   </th>
                 </tr>
               </thead>
@@ -126,7 +166,12 @@ export default function LeaderboardClient({ data }: Props) {
                       >
                         {p.username}
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 text-right font-mono text-sm font-bold" style={{
+                        color: (p.elo_rating ?? 1000) >= 1300 ? "#10B981" : (p.elo_rating ?? 1000) >= 1000 ? "#E0E0E0" : "#FF2D78",
+                      }}>
+                        {p.elo_rating ?? 1000}
+                      </td>
+                      <td className="px-4 py-4 hidden sm:table-cell">
                         <span className="font-mono text-sm text-[#E0E0E0]/60">
                           {countryToFlag(p.country)} {p.city ?? "—"}
                         </span>
