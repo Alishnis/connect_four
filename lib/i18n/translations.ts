@@ -31,6 +31,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     "play.ranked": "РЕЙТИНГОВЫЙ",
     "play.ranked.desc": "Играй против случайных соперников. Поднимайся в рейтинге.",
     "play.findMatch": "Найти матч",
+    "play.loginRequired": "⚠ Нужна регистрация",
 
     // Game
     "game.you": "ВЫ",
@@ -371,6 +372,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     "play.ranked": "RANKED",
     "play.ranked.desc": "Play against random opponents and climb the ranks.",
     "play.findMatch": "Find Match",
+    "play.loginRequired": "⚠ Login required",
 
     // Game
     "game.you": "YOU",
