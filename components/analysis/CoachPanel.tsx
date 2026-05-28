@@ -154,12 +154,20 @@ export default function CoachPanel({ report, playerFilter }: Props) {
       <GlowCard accentColor="cyan">
         <div className="font-mono text-xs uppercase tracking-widest text-[#00FFFF] mb-4">Хронология</div>
         <div className="flex flex-wrap gap-2">
-          {moves.map(move => {
+          {moves.map((move, idx) => {
+            const isLastMove = idx === moves.length - 1;
             const isBlunder = move.isBlunder;
             const isMissed = move.isMissedWin;
             const isInaccuracy = !isBlunder && !isMissed && move.evalDrop >= 10;
             const isSelected = selectedMove === move.moveNumber;
-            const flagColor = isBlunder ? "#FF2D78" : isMissed ? "#FF4500" : isInaccuracy ? "#FF9900" : "#00FFFF";
+
+            // Last move: mark as winning (green) if this player won, or blunder (red) if they lost
+            let flagColor: string;
+            if (isLastMove && report.winningSide !== null) {
+              flagColor = move.player === report.winningSide ? "#10B981" : "#FF2D78";
+            } else {
+              flagColor = isBlunder ? "#FF2D78" : isMissed ? "#FF4500" : isInaccuracy ? "#FF9900" : "#00FFFF";
+            }
             return (
               <motion.button
                 key={move.moveNumber}
@@ -192,6 +200,9 @@ export default function CoachPanel({ report, playerFilter }: Props) {
           <div className="flex items-center gap-2 font-mono text-xs text-[#E0E0E0]/50">
             <div className="w-3 h-3 rounded-full" style={{ background: "#00FFFF" }} /> Оптимально
           </div>
+          <div className="flex items-center gap-2 font-mono text-xs text-[#E0E0E0]/50">
+            <div className="w-3 h-3 rounded-full" style={{ background: "#10B981" }} /> Победа
+          </div>
         </div>
 
         {/* Selected move — board + details */}
@@ -205,9 +216,15 @@ export default function CoachPanel({ report, playerFilter }: Props) {
             r.map((cell, ci) => (ri === row && ci === move.column ? move.player : cell))
           ) as Board;
 
+          const isLastMoveDetail = move.moveNumber === moves[moves.length - 1]?.moveNumber;
           const isInaccuracy = !move.isBlunder && !move.isMissedWin && move.evalDrop >= 10;
-          const showBestHint = (move.isBlunder || move.isMissedWin || isInaccuracy) && move.bestCol !== move.column;
-          const flagColor = move.isBlunder ? "#FF2D78" : move.isMissedWin ? "#FF4500" : isInaccuracy ? "#FF9900" : "#00FFFF";
+          const showBestHint = (move.isBlunder || move.isMissedWin || isInaccuracy) && move.bestCol !== move.column && !(isLastMoveDetail && report.winningSide !== null);
+          let flagColor: string;
+          if (isLastMoveDetail && report.winningSide !== null) {
+            flagColor = move.player === report.winningSide ? "#10B981" : "#FF2D78";
+          } else {
+            flagColor = move.isBlunder ? "#FF2D78" : move.isMissedWin ? "#FF4500" : isInaccuracy ? "#FF9900" : "#00FFFF";
+          }
 
           return (
             <motion.div
@@ -239,7 +256,9 @@ export default function CoachPanel({ report, playerFilter }: Props) {
                 {/* Text details */}
                 <div className="font-mono text-sm flex-1 pt-5">
                   <div className="mb-2" style={{ color: flagColor }}>
-                    {move.isBlunder ? "⚠ Грубая ошибка" : move.isMissedWin ? "★ Упущена победа" : isInaccuracy ? "~ Неточность" : "✓ Оптимально"}
+                    {isLastMoveDetail && report.winningSide !== null
+                      ? move.player === report.winningSide ? "🏆 Победный ход" : "💀 Проигрышный ход"
+                      : move.isBlunder ? "⚠ Грубая ошибка" : move.isMissedWin ? "★ Упущена победа" : isInaccuracy ? "~ Неточность" : "✓ Оптимально"}
                   </div>
                   <div className="text-[#E0E0E0]/60 mb-1">
                     Сыграно: <span style={{ color: move.player === 1 ? "#FF2D78" : "#00CCFF" }}>Кол. {move.column + 1}</span>
@@ -265,6 +284,13 @@ export default function CoachPanel({ report, playerFilter }: Props) {
                   {!move.isBlunder && !move.isMissedWin && !isInaccuracy && (
                     <div className="text-[#00FFFF] mt-2 text-xs">
                       Оптимальный ход
+                    </div>
+                  )}
+                  {/* AI Coach tip */}
+                  {move.tip && (
+                    <div className="mt-3 pt-3" style={{ borderTop: "1px solid #2D1B4E" }}>
+                      <div className="font-mono text-xs uppercase tracking-widest text-[#10B981] mb-1">Совет тренера</div>
+                      <p className="font-mono text-xs text-[#E0E0E0]/80 leading-relaxed">{move.tip}</p>
                     </div>
                   )}
                 </div>

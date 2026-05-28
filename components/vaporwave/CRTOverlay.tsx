@@ -1,5 +1,10 @@
 "use client";
+import { useTheme } from "@/lib/theme";
+
 export default function CRTOverlay() {
+  const { theme } = useTheme();
+  if (theme === "light") return null;
+
   return (
     <>
       {/* Scanlines */}

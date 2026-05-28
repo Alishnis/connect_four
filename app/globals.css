@@ -72,17 +72,160 @@ html, body {
   background-clip: text;
 }
 
-/* Light mode */
-[data-theme="light"] html,
-[data-theme="light"] body,
+/* ═══════════════════ Light Mode ═══════════════════ */
 html[data-theme="light"],
 html[data-theme="light"] body {
-  background: #F0ECF8 !important;
-  color: #1a0030 !important;
+  background: linear-gradient(135deg, #F5F0FF 0%, #EDE5FF 50%, #F0ECFF 100%) !important;
+  color: #2D1050 !important;
 }
 
-html[data-theme="light"] {
-  --tw-bg-opacity: 1;
+/* Cards — white/frosted glass */
+html[data-theme="light"] .backdrop-blur-md {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(120, 80, 200, 0.15) !important;
+  border-top-color: rgba(120, 80, 200, 0.3) !important;
+  box-shadow: 0 2px 24px rgba(120, 80, 200, 0.08), 0 0 0 1px rgba(120, 80, 200, 0.06) !important;
+}
+
+/* Navbar */
+html[data-theme="light"] nav.fixed {
+  background: rgba(245, 240, 255, 0.95) !important;
+  border-bottom-color: rgba(120, 80, 200, 0.12) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* All text overrides for light backgrounds */
+html[data-theme="light"] .text-\[\#E0E0E0\],
+html[data-theme="light"] [style*="color: #E0E0E0"] {
+  color: #2D1050 !important;
+}
+
+html[data-theme="light"] .text-\[\#E0E0E0\]\/50,
+html[data-theme="light"] .text-\[\#E0E0E0\]\/40,
+html[data-theme="light"] .text-\[\#E0E0E0\]\/60,
+html[data-theme="light"] .text-\[\#E0E0E0\]\/70 {
+  color: rgba(45, 16, 80, 0.55) !important;
+}
+
+/* Cyan text — darker teal */
+html[data-theme="light"] [style*="color: #00FFFF"],
+html[data-theme="light"] [style*="color: #00CCFF"] {
+  color: #007088 !important;
+}
+
+/* Magenta text — darker purple */
+html[data-theme="light"] [style*="color: #FF00FF"] {
+  color: #AA00AA !important;
+}
+
+/* Button overrides */
+html[data-theme="light"] [style*="background: #FF00FF"] {
+  background: linear-gradient(135deg, #CC00CC, #AA00DD) !important;
+  box-shadow: 0 4px 20px rgba(170, 0, 170, 0.25) !important;
+}
+
+html[data-theme="light"] [style*="border: 2px solid #00FFFF"][style*="background: transparent"] {
+  border-color: #007088 !important;
+  color: #007088 !important;
+}
+
+html[data-theme="light"] [style*="border: 2px solid #FF00FF"][style*="background: transparent"] {
+  border-color: #AA00AA !important;
+  color: #AA00AA !important;
+}
+
+/* Pro section border */
+html[data-theme="light"] [style*="border: 2px solid #FF00FF"][style*="padding: 48px"] {
+  background: rgba(255, 255, 255, 0.7) !important;
+  box-shadow: 0 4px 30px rgba(170, 0, 170, 0.12) !important;
+}
+
+/* ProModal backdrop */
+html[data-theme="light"] [style*="rgba(9,0,20,0.85)"] {
+  background: rgba(240, 236, 255, 0.9) !important;
+}
+html[data-theme="light"] [style*="rgba(26,16,60,0.98)"] {
+  background: rgba(255, 255, 255, 0.98) !important;
+}
+
+/* Feature cards inside ProModal */
+html[data-theme="light"] [style*="rgba(0,0,0,0.3)"] {
+  background: rgba(120, 80, 200, 0.06) !important;
+}
+
+/* Input fields */
+html[data-theme="light"] input.bg-black,
+html[data-theme="light"] .bg-black {
+  background: rgba(120, 80, 200, 0.04) !important;
+  color: #2D1050 !important;
+}
+
+html[data-theme="light"] input::placeholder {
+  color: rgba(120, 80, 200, 0.3) !important;
+}
+
+/* Table row borders */
+html[data-theme="light"] [style*="border-bottom: 1px solid #2D1B4E"] {
+  border-bottom-color: rgba(120, 80, 200, 0.1) !important;
+}
+
+/* Terminal chrome header */
+html[data-theme="light"] [style*="rgba(0,255,255,0.05)"] {
+  background: rgba(120, 80, 200, 0.04) !important;
+  border-bottom-color: rgba(120, 80, 200, 0.1) !important;
+}
+
+/* Neon glows — remove in light mode */
+html[data-theme="light"] .text-glow-magenta {
+  text-shadow: none !important;
+}
+html[data-theme="light"] .text-glow-cyan {
+  text-shadow: none !important;
+}
+html[data-theme="light"] .glow-magenta,
+html[data-theme="light"] .glow-cyan {
+  filter: none !important;
+}
+
+/* Tab/filter buttons */
+html[data-theme="light"] button[style*="border: 2px solid #2D1B4E"] {
+  border-color: rgba(120, 80, 200, 0.2) !important;
+  color: #2D1050 !important;
+}
+
+html[data-theme="light"] button[style*="border: 2px solid #00FFFF"] {
+  border-color: #007088 !important;
+  color: #007088 !important;
+}
+
+/* Badge on homepage */
+html[data-theme="light"] .border-\[\#FF00FF\]\/40 {
+  border-color: rgba(170, 0, 170, 0.25) !important;
+  background: rgba(170, 0, 170, 0.04);
+}
+
+/* Scrollbar */
+html[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #F5F0FF;
+}
+html[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(120, 80, 200, 0.2);
+  border-radius: 4px;
+}
+
+/* Difficulty/TimeControl picker buttons */
+html[data-theme="light"] [style*="background: rgba(26, 16, 60, 0.8)"] {
+  background: rgba(255, 255, 255, 0.88) !important;
+}
+
+/* Table hover rows */
+html[data-theme="light"] tr:hover {
+  background: rgba(120, 80, 200, 0.05) !important;
+}
+
+/* Mode cards background */
+html[data-theme="light"] .hover\:-translate-y-1 {
+  box-shadow: 0 2px 12px rgba(120, 80, 200, 0.1);
 }
 
 /* Skin animations */

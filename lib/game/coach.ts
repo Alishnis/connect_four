@@ -1,6 +1,7 @@
 import { createBoard, dropDisc, checkWin, getValidColumns } from "./engine";
 import { getBestMove } from "./ai";
 import type { Board, Player } from "./constants";
+import { generateMoveTip } from "./coachTips";
 
 export interface MoveAnalysis {
   moveNumber: number;
@@ -12,6 +13,7 @@ export interface MoveAnalysis {
   isBlunder: boolean;
   isMissedWin: boolean;
   board: Board; // board state BEFORE this move
+  tip: string;  // natural language tip in Russian
 }
 
 export interface CoachReport {
@@ -93,6 +95,22 @@ export function analyzeGame(moveSequence: number[]): CoachReport {
     const win = checkWin(result.board, result.row, col);
     if (win) winningSide = win.winner;
 
+    const isLastMove = i === moveSequence.length - 1;
+    const wonGame = win !== null && win.winner === currentPlayer;
+
+    const moveTip = generateMoveTip({
+      board: boardBefore,
+      column: col,
+      bestCol,
+      player: currentPlayer,
+      evalDrop,
+      isBlunder,
+      isMissedWin,
+      isLastMove,
+      wonGame,
+      winningSide,
+    });
+
     analyses.push({
       moveNumber: i + 1,
       player: currentPlayer,
@@ -103,6 +121,7 @@ export function analyzeGame(moveSequence: number[]): CoachReport {
       isBlunder,
       isMissedWin,
       board: boardBefore,
+      tip: moveTip.text,
     });
 
     board = result.board;

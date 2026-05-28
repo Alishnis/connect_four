@@ -1,4 +1,5 @@
 "use client";
+import { memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cell as CellType } from "@/lib/game/constants";
 import { useSkin } from "@/lib/skins/SkinContext";
@@ -9,7 +10,7 @@ interface Props {
   isLastMove: boolean;
 }
 
-export default function Cell({ value, isWinCell, isLastMove }: Props) {
+const Cell = memo(function Cell({ value, isWinCell, isLastMove }: Props) {
   const skin = useSkin();
 
   const getStyle = () => {
@@ -41,7 +42,7 @@ export default function Cell({ value, isWinCell, isLastMove }: Props) {
     <div className="flex items-center justify-center w-full" style={{ aspectRatio: "1 / 1" }}>
       <AnimatePresence>
         <motion.div
-          key={value !== 0 ? `disc-${Date.now()}` : "empty"}
+          key={`disc-${value}`}
           className={`${style.animation ?? ""}`}
           style={{
             width: "85%",
@@ -63,4 +64,6 @@ export default function Cell({ value, isWinCell, isLastMove }: Props) {
       </AnimatePresence>
     </div>
   );
-}
+});
+
+export default Cell;
