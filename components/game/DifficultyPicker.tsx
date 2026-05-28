@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 
-type Difficulty = "easy" | "medium" | "hard";
+export type Difficulty = "easy" | "medium" | "hard";
 
 interface Props {
   value: Difficulty;
@@ -9,21 +9,21 @@ interface Props {
 }
 
 const levels: { value: Difficulty; label: string; color: string }[] = [
-  { value: "easy", label: "EASY", color: "#00FFFF" },
-  { value: "medium", label: "MEDIUM", color: "#FF9900" },
-  { value: "hard", label: "HARD", color: "#FF00FF" },
+  { value: "easy",   label: "EASY",  color: "#00FFFF" },
+  { value: "medium", label: "MED",   color: "#FF9900" },
+  { value: "hard",   label: "HARD",  color: "#FF00FF" },
 ];
 
 export default function DifficultyPicker({ value, onChange }: Props) {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-1">
       {levels.map(level => (
         <motion.button
           key={level.value}
           onClick={() => onChange(level.value)}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="flex-1 py-2 px-3 font-mono text-xs uppercase tracking-widest cursor-pointer"
+          className="flex-1 py-2 px-1 font-mono text-xs uppercase tracking-widest cursor-pointer"
           style={{
             border: `2px solid ${level.color}`,
             background: value === level.value ? level.color : "transparent",

@@ -2,10 +2,12 @@ import { createClient } from "@/lib/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export type GameEvent =
-  | { type: "move"; column: number; player: 1 | 2; moveNumber: number }
+  | { type: "move"; column: number; player: 1 | 2; moveNumber: number; timeLeft?: [number, number] }
   | { type: "resign"; player: 1 | 2 }
   | { type: "rematch" }
-  | { type: "player_joined"; playerId: string | null };
+  | { type: "player_joined"; playerId: string | null }
+  | { type: "timeout"; loser: 1 | 2 }
+  | { type: "set_time_control"; mode: string };
 
 type EventHandler = (event: GameEvent) => void;
 

@@ -71,3 +71,36 @@ html, body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Light mode */
+[data-theme="light"] html,
+[data-theme="light"] body,
+html[data-theme="light"],
+html[data-theme="light"] body {
+  background: #F0ECF8 !important;
+  color: #1a0030 !important;
+}
+
+html[data-theme="light"] {
+  --tw-bg-opacity: 1;
+}
+
+/* Skin animations */
+@keyframes neon-pulse {
+  0%, 100% { box-shadow: 0 0 10px currentColor; }
+  50% { box-shadow: 0 0 25px currentColor, 0 0 50px currentColor; }
+}
+@keyframes holo-shift {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+@keyframes glitch-jitter {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, -2px); }
+  80% { transform: translate(1px, 2px); }
+}
+.skin-neon-pulse { animation: neon-pulse 1.5s ease-in-out infinite; }
+.skin-holographic { animation: holo-shift 3s linear infinite; }
+.skin-glitch { animation: glitch-jitter 0.3s ease-in-out infinite; }

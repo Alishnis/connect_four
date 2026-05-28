@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { detectCity } from "@/lib/geo/detectCity";
 import type { User } from "@supabase/supabase-js";
 import type { Profile } from "@/lib/supabase/types";
 
@@ -30,6 +31,19 @@ export function useAuth() {
     const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
     setProfile(data);
     setLoading(false);
+
+    // Auto-detect city if not set (runs once per user)
+    if (data && !data.city) {
+      detectCity().then(async (geo) => {
+        if (geo.city) {
+          await supabase
+            .from("profiles")
+            .update({ city: geo.city, country: geo.country })
+            .eq("id", userId);
+          setProfile((prev) => prev ? { ...prev, city: geo.city, country: geo.country } : prev);
+        }
+      });
+    }
   }
 
   async function signOut() {

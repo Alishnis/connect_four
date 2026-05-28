@@ -2,6 +2,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Player } from "@/lib/game/constants";
 import SkewButton from "@/components/vaporwave/SkewButton";
+import type { CoinReward } from "@/lib/coins/rewards";
 
 interface Props {
   winner: Player | null;
@@ -10,9 +11,11 @@ interface Props {
   onHome: () => void;
   onAnalysis?: () => void;
   playerNames?: [string, string];
+  coinReward?: CoinReward | null;
+  timeoutLoser?: Player | null;
 }
 
-export default function GameOverModal({ winner, isDraw, onRematch, onHome, onAnalysis, playerNames = ["PLAYER 1", "PLAYER 2"] }: Props) {
+export default function GameOverModal({ winner, isDraw, onRematch, onHome, onAnalysis, playerNames = ["PLAYER 1", "PLAYER 2"], coinReward, timeoutLoser }: Props) {
   const title = isDraw ? "DRAW!" : `${winner === 1 ? playerNames[0] : playerNames[1]} WINS!`;
   const color = isDraw ? "#FF9900" : winner === 1 ? "#FF00FF" : "#00FFFF";
 
@@ -40,14 +43,50 @@ export default function GameOverModal({ winner, isDraw, onRematch, onHome, onAna
           <div className="font-heading font-black text-4xl mb-2" style={{ color, fontFamily: "Orbitron, sans-serif", textShadow: `0 0 20px ${color}` }}>
             {title}
           </div>
-          <div className="font-mono text-sm text-[#E0E0E0]/60 mb-8 uppercase tracking-widest">
-            {isDraw ? "No one rules the grid today." : "The grid bows to the victor."}
+          <div className="font-mono text-sm text-[#E0E0E0]/60 mb-4 uppercase tracking-widest">
+            {timeoutLoser
+              ? "⏰ ВРЕМЯ ВЫШЛО!"
+              : isDraw
+                ? "Ничья. Сетка не покорилась никому."
+                : "Сетка склоняется перед победителем."}
           </div>
+
+          {/* Coin reward display */}
+          {coinReward && coinReward.total > 0 && (
+            <motion.div
+              className="mb-6 py-3 px-4"
+              style={{
+                background: "rgba(255, 153, 0, 0.1)",
+                border: "1px solid #FF990044",
+              }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.5, type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <motion.div
+                className="font-heading font-bold text-2xl"
+                style={{ color: "#FF9900", fontFamily: "Orbitron, sans-serif" }}
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ repeat: 2, duration: 0.4, delay: 0.8 }}
+              >
+                +{coinReward.total} NC
+              </motion.div>
+              <div className="font-mono text-xs text-[#E0E0E0]/50 mt-1">
+                {coinReward.reason}
+                {coinReward.streakBonus > 0 && (
+                  <span style={{ color: "#FF9900" }}>
+                    {" "}(серия +{coinReward.streakBonus})
+                  </span>
+                )}
+              </div>
+            </motion.div>
+          )}
+
           <div className="flex gap-4 justify-center flex-wrap">
-            <SkewButton variant="primary" onClick={onRematch}>Rematch</SkewButton>
-            <SkewButton variant="secondary" onClick={onHome}>Home</SkewButton>
+            <SkewButton variant="primary" onClick={onRematch}>Реванш</SkewButton>
+            <SkewButton variant="secondary" onClick={onHome}>Главная</SkewButton>
             {onAnalysis && (
-              <SkewButton variant="outline" onClick={onAnalysis}>Analyze</SkewButton>
+              <SkewButton variant="outline" onClick={onAnalysis}>Анализ</SkewButton>
             )}
           </div>
         </motion.div>

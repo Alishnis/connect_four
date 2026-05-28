@@ -1,6 +1,7 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cell as CellType } from "@/lib/game/constants";
+import { useSkin } from "@/lib/skins/SkinContext";
 
 interface Props {
   value: CellType;
@@ -8,31 +9,46 @@ interface Props {
   isLastMove: boolean;
 }
 
-const CELL_SIZE = 60;
-
 export default function Cell({ value, isWinCell, isLastMove }: Props) {
-  const colors = {
-    0: { bg: "rgba(255,255,255,0.04)", shadow: "inset 0 0 10px rgba(0,0,0,0.5)" },
-    1: { bg: "#FF2D78", shadow: isWinCell ? "0 0 20px #FF00FF, 0 0 40px #FF00FF" : "0 0 10px #FF00FF" },
-    2: { bg: "#00CCFF", shadow: isWinCell ? "0 0 20px #00FFFF, 0 0 40px #00FFFF" : "0 0 10px #00FFFF" },
+  const skin = useSkin();
+
+  const getStyle = () => {
+    if (value === 0) {
+      return {
+        bg: "rgba(255,255,255,0.04)",
+        shadow: "inset 0 0 10px rgba(0,0,0,0.5)",
+        radius: "50%",
+        animation: undefined as string | undefined,
+      };
+    }
+
+    const playerStyle = value === 1 ? skin.player1 : skin.player2;
+    const winGlow = isWinCell
+      ? `${playerStyle.boxShadow}, ${playerStyle.boxShadow.replace(/\d+px/g, (m) => `${parseInt(m) * 2}px`)}`
+      : playerStyle.boxShadow;
+
+    return {
+      bg: playerStyle.background,
+      shadow: winGlow,
+      radius: playerStyle.borderRadius ?? "50%",
+      animation: playerStyle.animation,
+    };
   };
 
-  const style = colors[value];
+  const style = getStyle();
 
   return (
-    <div
-      className="flex items-center justify-center"
-      style={{ height: CELL_SIZE, width: "100%" }}
-    >
+    <div className="flex items-center justify-center w-full" style={{ aspectRatio: "1 / 1" }}>
       <AnimatePresence>
         <motion.div
           key={value !== 0 ? `disc-${Date.now()}` : "empty"}
-          className="rounded-full"
+          className={`${style.animation ?? ""}`}
           style={{
-            width: CELL_SIZE - 8,
-            height: CELL_SIZE - 8,
+            width: "85%",
+            height: "85%",
             background: style.bg,
             boxShadow: style.shadow,
+            borderRadius: style.radius,
           }}
           initial={value !== 0 ? { y: -400, scale: 0.8 } : false}
           animate={value !== 0 ? {

@@ -65,9 +65,13 @@ export function analyzeGame(moveSequence: number[]): CoachReport {
     const result = dropDisc(boardBefore, col, currentPlayer);
     if (!result) { currentPlayer = currentPlayer === 1 ? 2 : 1; continue; }
 
-    const evalAfterActual = evalBoard(result.board, currentPlayer);
-    const evalAfterBest = ai.evalScore;
-    const evalDrop = evalAfterBest - evalAfterActual;
+    // evalScore always from Player 1's perspective for consistent chart display
+    // positive = P1 winning, negative = P2 winning
+    const evalFromCurrentPlayer = evalBoard(result.board, currentPlayer);
+    const evalAfterActual = currentPlayer === 1 ? evalFromCurrentPlayer : -evalFromCurrentPlayer;
+
+    // evalDrop: how much worse than optimal (from current player's perspective, for blunder detection)
+    const evalDrop = ai.evalScore - evalFromCurrentPlayer;
     const isBlunder = evalDrop > 50;
 
     // Check for missed immediate win

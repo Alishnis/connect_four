@@ -5,6 +5,8 @@ export interface Profile {
   city: string | null;
   country: string | null;
   is_pro: boolean;
+  coins: number;
+  owned_skins: string[];
   skin_id: string;
   created_at: string;
 }
@@ -20,6 +22,7 @@ export interface Match {
   move_sequence: number[];
   total_moves: number | null;
   duration_secs: number | null;
+  time_control?: string;
   created_at: string;
 }
 

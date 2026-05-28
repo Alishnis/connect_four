@@ -14,6 +14,18 @@ export interface WinResult {
   cells: [number, number][];
 }
 
+export type TimeControlMode = "classic" | "blitz" | "sprint";
+
+export interface TimeControl {
+  mode: TimeControlMode;
+  totalTime?: number;  // ms for blitz (60000 = 1 min)
+  moveTime?: number;   // ms for sprint (10000 = 10 sec)
+}
+
+export const DEFAULT_TIME_CONTROL: TimeControl = { mode: "classic" };
+export const BLITZ_TIME_CONTROL: TimeControl = { mode: "blitz", totalTime: 60000 };
+export const SPRINT_TIME_CONTROL: TimeControl = { mode: "sprint", moveTime: 10000 };
+
 export interface GameState {
   board: Board;
   currentPlayer: Player;
@@ -23,4 +35,8 @@ export interface GameState {
   isDraw: boolean;
   moveCount: number;
   hintColumn: number | null;
+  timeControl?: TimeControl;
+  timeLeft?: [number, number];
+  moveTimeLeft?: number | null;
+  timeoutLoser?: Player | null;
 }

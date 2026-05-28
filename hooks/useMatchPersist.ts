@@ -12,6 +12,7 @@ interface SaveMatchParams {
   moveSequence: number[];
   totalMoves: number;
   durationSecs: number;
+  timeControl?: string;
 }
 
 export function useMatchPersist() {
@@ -27,6 +28,7 @@ export function useMatchPersist() {
       move_sequence: params.moveSequence,
       total_moves: params.totalMoves,
       duration_secs: params.durationSecs,
+      time_control: params.timeControl ?? "classic",
     }).select("id").single();
 
     if (error) { console.error("Failed to save match:", error); return null; }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import CRTOverlay from "@/components/vaporwave/CRTOverlay";
 import Navbar from "@/components/layout/Navbar";
+import { ThemeProvider } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: "CONNECT FOUR — Neon Grid",
@@ -17,9 +18,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="bg-[#090014] text-[#E0E0E0] min-h-screen overflow-x-hidden">
-        <CRTOverlay />
-        <Navbar />
-        {children}
+        <ThemeProvider>
+          <CRTOverlay />
+          <Navbar />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

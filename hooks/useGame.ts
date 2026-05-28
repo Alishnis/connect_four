@@ -12,6 +12,7 @@ const initialState = (): GameState => ({
   isDraw: false,
   moveCount: 0,
   hintColumn: null,
+  timeoutLoser: null,
 });
 
 export function useGame() {
@@ -40,11 +41,28 @@ export function useGame() {
   }, []);
 
   const setAIThinking = useCallback((thinking: boolean) => {
-    setState(prev => ({ ...prev, status: thinking ? "ai_thinking" : "playing" }));
+    setState(prev => ({
+      ...prev,
+      status: thinking
+        ? "ai_thinking"
+        : prev.status === "ai_thinking" ? "playing" : prev.status, // don't overwrite game_over
+    }));
   }, []);
 
   const setHint = useCallback((col: number | null) => {
     setState(prev => ({ ...prev, hintColumn: col }));
+  }, []);
+
+  const timeoutLoss = useCallback((loser: Player) => {
+    setState(prev => {
+      if (prev.status === "game_over") return prev;
+      return {
+        ...prev,
+        status: "game_over",
+        winner: loser === 1 ? 2 : 1,
+        timeoutLoser: loser,
+      };
+    });
   }, []);
 
   const reset = useCallback(() => {
@@ -69,5 +87,5 @@ export function useGame() {
     });
   }, []);
 
-  return { state, lastMove, makeMove, setAIThinking, setHint, reset, forceMove };
+  return { state, lastMove, makeMove, setAIThinking, setHint, reset, forceMove, timeoutLoss };
 }

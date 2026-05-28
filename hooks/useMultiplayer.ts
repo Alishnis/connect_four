@@ -96,6 +96,9 @@ export function useMultiplayer(roomId: string, matchId: string) {
           setState(prev => ({ ...prev, status: "game_over", winner }));
         } else if (event.type === "rematch") {
           setState(prev => ({ ...prev, board: createBoard(), currentPlayer: 1, status: "playing", winner: null, winCells: null, isDraw: false, moveCount: 0, lastMove: null }));
+        } else if (event.type === "timeout") {
+          const winner: Player = event.loser === 1 ? 2 : 1;
+          setState(prev => ({ ...prev, status: "game_over", winner }));
         }
       });
 
@@ -162,5 +165,9 @@ export function useMultiplayer(roomId: string, matchId: string) {
     setState(prev => ({ ...prev, board: createBoard(), currentPlayer: 1, status: "playing", winner: null, winCells: null, isDraw: false, moveCount: 0, lastMove: null }));
   }, []);
 
-  return { state, makeMove, resign, rematch };
+  const sendEvent = useCallback((event: GameEvent) => {
+    channelRef.current?.send(event);
+  }, []);
+
+  return { state, makeMove, resign, rematch, sendEvent };
 }
