@@ -194,16 +194,7 @@ html[data-theme="light"] .glow-cyan {
   filter: none !important;
 }
 
-/* Tab/filter buttons */
-html[data-theme="light"] button[style*="border: 2px solid #2D1B4E"] {
-  border-color: rgba(120, 80, 200, 0.2) !important;
-  color: #2D1050 !important;
-}
-
-html[data-theme="light"] button[style*="border: 2px solid #00FFFF"] {
-  border-color: #007088 !important;
-  color: #007088 !important;
-}
+/* Tab/sort buttons — handled via inline styles in LeaderboardClient */
 
 /* Badge on homepage */
 html[data-theme="light"] .border-\[\#FF00FF\]\/40 {

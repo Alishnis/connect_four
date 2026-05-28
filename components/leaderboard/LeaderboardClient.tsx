@@ -5,6 +5,7 @@ import GlowCard from "@/components/vaporwave/GlowCard";
 import { countryToFlag } from "@/lib/geo/countryFlag";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { useTheme } from "@/lib/theme";
 import type { LeaderboardEntry } from "@/lib/supabase/types";
 
 export type LeaderboardRow = LeaderboardEntry & { rank: number };
@@ -20,6 +21,8 @@ export default function LeaderboardClient({ data }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("global");
   const [sortBy, setSortBy] = useState<SortKey>("elo");
   const { profile } = useAuth();
+  const { theme } = useTheme();
+  const light = theme === "light";
   const { t } = useLanguage();
 
   const userCity = profile?.city ?? null;
@@ -54,11 +57,10 @@ export default function LeaderboardClient({ data }: Props) {
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className="px-6 py-2 font-mono text-sm uppercase tracking-widest transition-all cursor-pointer"
-            style={{
-              border: `2px solid ${activeTab === tab.key ? "#00FFFF" : "#2D1B4E"}`,
-              background: activeTab === tab.key ? "rgba(0,255,255,0.1)" : "transparent",
-              color: activeTab === tab.key ? "#00FFFF" : "#E0E0E0",
-            }}
+            style={activeTab === tab.key
+              ? { border: `2px solid ${light ? "#007088" : "#00FFFF"}`, background: light ? "rgba(0,112,136,0.1)" : "rgba(0,255,255,0.1)", color: light ? "#007088" : "#00FFFF" }
+              : { border: `2px solid ${light ? "rgba(80,50,140,0.25)" : "#2D1B4E"}`, background: light ? "rgba(80,50,140,0.05)" : "transparent", color: light ? "#4A2080" : "#E0E0E0" }
+            }
           >
             {tab.label}
           </button>
@@ -78,11 +80,10 @@ export default function LeaderboardClient({ data }: Props) {
             key={s.key}
             onClick={() => setSortBy(s.key)}
             className="px-3 py-1 font-mono text-xs uppercase tracking-widest transition-all cursor-pointer"
-            style={{
-              border: `1px solid ${sortBy === s.key ? "#FF9900" : "#2D1B4E"}`,
-              background: sortBy === s.key ? "rgba(255,153,0,0.15)" : "transparent",
-              color: sortBy === s.key ? "#FF9900" : "#E0E0E0",
-            }}
+            style={sortBy === s.key
+              ? { border: `1px solid ${light ? "#CC7700" : "#FF9900"}`, background: light ? "rgba(204,119,0,0.1)" : "rgba(255,153,0,0.15)", color: light ? "#CC7700" : "#FF9900" }
+              : { border: `1px solid ${light ? "rgba(80,50,140,0.25)" : "#2D1B4E"}`, background: light ? "rgba(80,50,140,0.05)" : "transparent", color: light ? "#4A2080" : "#E0E0E0" }
+            }
           >
             {s.label}
           </button>
