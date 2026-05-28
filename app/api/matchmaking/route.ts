@@ -16,6 +16,10 @@ async function createServiceClient() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({ error: "Server not configured: missing SUPABASE_SERVICE_ROLE_KEY" }, { status: 503 });
+  }
+
   const { playerId, opponentId } = await req.json();
 
   if (!playerId || !opponentId) {
