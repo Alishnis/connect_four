@@ -2,71 +2,74 @@
 
 > Drop your line. Dominate the grid.
 
-A retro-futuristic Connect Four game built for the nFactor hackathon. Not just another game clone — a product with real differentiators.
+**NeonGrid** — это онлайн Connect Four с киберпанк-эстетикой, ИИ-тренером и рейтинговой системой. Создан для тех, кто хочет не просто играть в «Четыре в ряд», а соревноваться, учиться и прогрессировать.
 
-## What makes this different
+## Для кого
 
-### The aesthetic
-Full vaporwave/outrun design system: CRT scanlines, perspective grid, neon glows, Orbitron typography. Everything is designed to be screenshot-worthy and shareable.
+- **Казуальные игроки** — быстрые партии против ИИ или друга по ссылке
+- **Соревновательные игроки** — рейтинговый матчмейкинг с ELO, глобальный лидерборд по городам
+- **Те, кто хочет стать лучше** — ИИ-тренер разбирает каждый ход: где ты упустил победу, не заблокировал угрозу или создал вилку
 
-### The features
-- **AI Opponent** — Minimax with alpha-beta pruning. Three difficulty levels (Easy/Medium/Hard). The Hard AI searches 8 moves deep.
-- **Real-time Multiplayer** — Share a link, play anywhere. Built on Supabase Realtime broadcast channels (~50ms latency).
-- **AI Coach** — Post-game analysis. Finds blunders, missed wins, fork opportunities, and gives you an accuracy score. Turns a casual game into something educational.
-- **Global Leaderboard** — Ranked by wins, with city-level granularity. Social hook for organic growth.
-- **Pro Tier** — Cosmetic upgrades (disc skins, board themes) + unlimited hints + full AI Coach on multiplayer games. $3.99/mo. Monetization from day one.
-- **Auth & Match History** — Sign up, all your games are saved, profile shows your stats.
+## Почему это ценно
 
-## Tech stack
+1. **ИИ Coach** — после каждой партии анализ ходов с объяснением на русском: «Соперник мог выиграть в колонке 4. Нужно было блокировать!». Превращает казуальную игру в обучение.
+2. **Мультиплеер за секунду** — поделись ссылкой, играй из любого браузера. WebSocket-синхронизация <50мс.
+3. **Рейтинговая система** — ELO (K=32), автоматический подбор соперника по рейтингу, отображение изменения ELO после каждого матча.
+4. **Эстетика, которой хочется делиться** — CRT-сканлайны, неоновые свечения, перспективная сетка, Orbitron-типографика. Каждый скриншот — контент.
 
-- **Next.js 14** (App Router) — server components, API routes, middleware
-- **Tailwind CSS v4** — custom vaporwave design tokens
-- **Framer Motion** — disc drop animations, modal transitions, hover effects
-- **Supabase** — PostgreSQL, Auth (email + Google OAuth), Realtime broadcast
-- **TypeScript** — throughout
-- **Recharts** — AI Coach evaluation chart
+## Возможности
 
-## Running locally
+| Фича | Описание |
+|------|----------|
+| **3 режима ИИ** | Easy / Medium / Hard (minimax, 8 ходов вглубь) |
+| **Мультиплеер** | Комната по ссылке, Supabase Realtime broadcast |
+| **Рейтинговый бой** | Matchmaking по ELO, автоматический подбор ±200 |
+| **Блиц / Спринт** | 1 мин на партию или 10 сек на ход |
+| **ИИ Тренер** | Анализ ошибок, вилок, упущенных побед + GPT-4o разбор |
+| **Скины** | 6 скинов за игровую валюту (Neon Coins) |
+| **Лидерборд** | Сортировка по ELO/победам/Win%, фильтр по городу |
+| **Двуязычность** | Полный RU/EN интерфейс |
+| **Pro подписка** | Stripe checkout, $3.99/мес |
+| **Авто-геолокация** | Город определяется при регистрации через IP |
+
+## Технологии
+
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **Tailwind CSS v4** — кастомные design-токены vaporwave-темы
+- **Supabase** — PostgreSQL, Auth (email + Google OAuth), Realtime
+- **Framer Motion** — анимации дисков, модалки, hover-эффекты
+- **Recharts** — график оценки позиции в AI Coach
+- **OpenAI GPT-4o** — углублённый анализ партий (опционально)
+
+## Запуск
 
 ```bash
-# Install dependencies
 npm install
-
-# Set up environment variables
 cp .env.example .env.local
-# Fill in your Supabase URL and anon key
+# Заполни Supabase URL, ключи и (опционально) OpenAI ключ
 
-# Run the dev server
-node node_modules/next/dist/bin/next dev
-
-# Open http://localhost:3000
+npm run dev
+# http://localhost:3000
 ```
 
-## Supabase setup
+## Supabase
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Run `supabase/migrations/001_initial_schema.sql` in the SQL editor
-3. Enable Realtime on the `matches` table
-4. Add your URL and anon key to `.env.local`
+1. Создай проект на [supabase.com](https://supabase.com)
+2. Выполни миграции в SQL Editor:
+   - `supabase/migrations/001_initial_schema.sql`
+   - `supabase/migrations/002_skins_and_coins.sql`
+   - `supabase/migrations/003_game_modes.sql`
+   - `supabase/migrations/004_ranked_matchmaking.sql`
+   - `supabase/migrations/005_fix_multiplayer.sql`
+3. Включи Realtime на таблице `matches`
+4. Добавь URL, anon key и service role key в `.env.local`
 
-The app works without Supabase (mock data for leaderboard, demo mode for AI Coach) but multiplayer and auth require it.
+Без Supabase работает: игра против ИИ, локальный мультиплеер, магазин (localStorage), демо-анализ.
 
-## Deploy
+## Деплой
 
-```bash
-# Deploy to Vercel
-vercel deploy
-```
+Задеплоен на [Vercel](https://vercel.com). Добавь env-переменные в Vercel Dashboard → Settings → Environment Variables.
 
-Add your Supabase env vars in the Vercel dashboard.
+## Автор
 
-## Why this could be a real product
-
-1. **The aesthetic works as marketing** — Users will screenshot this and share it. The vaporwave execution is extreme enough to be memorable.
-2. **Social loops** — Shareable room links bring new users. City leaderboard creates local pride and competition.
-3. **Retention hook** — AI Coach gives players a reason to keep coming back (self-improvement). This is the key differentiator from the 1,000 other Connect Four games.
-4. **Monetization is in place** — Pro tier is live at $3.99/mo. Even at 1% conversion on 10,000 MAU, that's real revenue.
-
-## Author
-
-Built with Claude Code + nFactor Hackathon · 2026
+Алишер Романкул · Built with Claude Code · 2026
