@@ -2,6 +2,8 @@
 
 > Drop your line. Dominate the grid.
 
+🌐 **Live:** [connect-four-zeta-eight.vercel.app](https://connect-four-zeta-eight.vercel.app/)
+
 **NeonGrid** — это онлайн Connect Four с киберпанк-эстетикой, ИИ-тренером и рейтинговой системой. Создан для тех, кто хочет не просто играть в «Четыре в ряд», а соревноваться, учиться и прогрессировать.
 
 ## Для кого

@@ -41,7 +41,7 @@ export default function SkewButton({ children, variant = "primary", onClick, cla
       initial={{ skewX: -10 }}
       whileHover={{ skewX: 0, boxShadow: variant === "primary" ? "0 0 30px #FF00FF" : "0 0 30px #00FFFF" }}
       transition={{ duration: 0.15, ease: "linear" }}
-      className={`relative px-8 py-3 font-mono font-bold uppercase tracking-widest text-sm cursor-pointer ${className}`}
+      className={`relative px-8 py-3 font-mono font-bold uppercase tracking-widest text-sm cursor-pointer skew-btn-${variant} ${className}`}
       style={style}
     >
       <motion.span

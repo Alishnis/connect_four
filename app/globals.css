@@ -118,20 +118,27 @@ html[data-theme="light"] [style*="color: #FF00FF"] {
   color: #AA00AA !important;
 }
 
-/* Button overrides */
-html[data-theme="light"] [style*="background: #FF00FF"] {
+/* Button overrides — class-based (reliable) */
+html[data-theme="light"] .skew-btn-primary {
   background: linear-gradient(135deg, #CC00CC, #AA00DD) !important;
   box-shadow: 0 4px 20px rgba(170, 0, 170, 0.25) !important;
 }
 
-html[data-theme="light"] [style*="border: 2px solid #00FFFF"][style*="background: transparent"] {
+html[data-theme="light"] .skew-btn-secondary {
   border-color: #007088 !important;
   color: #007088 !important;
+  background: rgba(0, 112, 136, 0.08) !important;
 }
 
-html[data-theme="light"] [style*="border: 2px solid #FF00FF"][style*="background: transparent"] {
+html[data-theme="light"] .skew-btn-outline {
   border-color: #AA00AA !important;
   color: #AA00AA !important;
+}
+
+/* Inline style fallbacks for non-SkewButton elements */
+html[data-theme="light"] [style*="background: #FF00FF"] {
+  background: linear-gradient(135deg, #CC00CC, #AA00DD) !important;
+  box-shadow: 0 4px 20px rgba(170, 0, 170, 0.25) !important;
 }
 
 /* Pro section border */
